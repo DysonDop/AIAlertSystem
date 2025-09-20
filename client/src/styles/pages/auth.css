@@ -25,7 +25,7 @@
   align-items: center;
   gap: var(--spacing-2);
   text-decoration: none;
-  color: white;
+  color: var(--palette-dark-blue-gray) !important; /* Always dark text regardless of theme */
   transition: opacity 0.2s ease;
 }
 
@@ -134,6 +134,7 @@
   font-size: 1rem;
   transition: all 0.2s ease;
   background: white;
+  color: var(--palette-dark-blue-gray); /* Dark text for readability */
 }
 
 .form-input:focus {

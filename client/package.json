@@ -10,15 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/leaflet": "^1.9.20",
+    "@googlemaps/js-api-loader": "^1.16.10",
     "@types/react-router-dom": "^5.3.3",
     "aws-amplify": "^6.0.0",
     "axios": "^1.12.2",
-    "leaflet": "^1.9.4",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.9.1"
   },
   "devDependencies": {

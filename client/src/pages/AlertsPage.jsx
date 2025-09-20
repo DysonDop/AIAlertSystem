@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, MapPin, Clock } from 'lucide-react';
 import AlertCard from '../components/alerts/AlertCard.jsx';
-import { alertService, searchService } from '../services/api';
+import Navigation from '../components/layout/Navigation.jsx';
+import { alertService, searchService } from '../services/api.js';
 import '../styles/pages/alerts.css';
 
 const AlertsPage = () => {

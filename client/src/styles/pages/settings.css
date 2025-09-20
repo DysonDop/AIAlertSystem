@@ -64,7 +64,7 @@
 }
 
 .setting-info {
-  flex: 2;
+  flex: 3;
   margin-right: var(--spacing-4);
 }
 
@@ -233,10 +233,17 @@
 /* Settings Form Controls */
 .setting-control {
   flex: 0 0 auto;
-  min-width: 140px;
-  max-width: 180px;
+  min-width: 100px;
+  max-width: 120px;
 }
 
 .setting-control .form-select {
   width: 100%;
+}
+
+/* Input fields in settings */
+.setting-item input.form-input {
+  width: 120px;
+  max-width: 120px;
+  flex-shrink: 0;
 }

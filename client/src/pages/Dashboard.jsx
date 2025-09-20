@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertTriangle, MapPin, Clock, TrendingUp } from 'lucide-react';
 import AlertCard from '../components/alerts/AlertCard.jsx';
 import DisasterMap from '../components/maps/DisasterMap.jsx';
-import { alertService } from '../services/api';
+import { alertService } from '../services/api.js';
 import '../styles/pages/dashboard.css';
 
 const Dashboard = () => {
