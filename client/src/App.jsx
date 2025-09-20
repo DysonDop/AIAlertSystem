@@ -13,6 +13,8 @@ import MapPage from './pages/MapPage.jsx';
 import SearchPage from './pages/SearchPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
+import TermsOfService from './pages/TermsOfService.jsx';
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
             <Route path="/" element={<Homepage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             
             {/* Protected Routes */}
             <Route path="/app" element={
