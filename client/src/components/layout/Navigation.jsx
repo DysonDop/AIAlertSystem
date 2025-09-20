@@ -1,15 +1,40 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { AlertTriangle, Map, Search, Home, Settings } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { AlertTriangle, Map, Search, Home, Settings, LogOut, User, ChevronDown } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Navigation = ({ className }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const navItems = [
-    { to: '/', icon: Home, label: 'Dashboard' },
-    { to: '/alerts', icon: AlertTriangle, label: 'Alerts' },
-    { to: '/map', icon: Map, label: 'Map' },
-    { to: '/search', icon: Search, label: 'Search & Rescue' },
-    { to: '/settings', icon: Settings, label: 'Settings' },
+    { to: '/app/dashboard', icon: Home, label: 'Dashboard' },
+    { to: '/app/alerts', icon: AlertTriangle, label: 'Alerts' },
+    { to: '/app/map', icon: Map, label: 'Map' },
+    { to: '/app/search', icon: Search, label: 'Search & Rescue' },
+    { to: '/app/settings', icon: Settings, label: 'Settings' },
   ];
+
+  const handleLogout = () => {
+    logout();
+    navigate('/', { replace: true });
+  };
 
   return (
     <nav className={`navbar ${className || ''}`}>
@@ -35,6 +60,39 @@ const Navigation = ({ className }) => {
                 {label}
               </NavLink>
             ))}
+          </div>
+
+          {/* User Menu */}
+          <div className="navbar-user" ref={userMenuRef}>
+            <div 
+              className="user-menu-trigger"
+              onClick={() => setShowUserMenu(!showUserMenu)}
+            >
+              <div className="user-avatar">
+                <User size={16} />
+              </div>
+              <span className="user-name">{user?.name || 'User'}</span>
+              <ChevronDown size={16} className="user-menu-icon" />
+            </div>
+            
+            {showUserMenu && (
+              <div className="user-menu">
+                <div className="user-menu-header">
+                  <div className="user-info">
+                    <div className="user-info-name">{user?.name}</div>
+                    <div className="user-info-email">{user?.email}</div>
+                  </div>
+                </div>
+                <div className="user-menu-divider"></div>
+                <button 
+                  className="user-menu-item logout-btn"
+                  onClick={handleLogout}
+                >
+                  <LogOut size={16} />
+                  Sign out
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}

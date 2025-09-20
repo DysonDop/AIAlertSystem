@@ -2,7 +2,7 @@
 
 .dashboard {
   min-height: 100vh;
-  background-color: var(--gray-50);
+  background-color: var(--bg-secondary);
 }
 
 .dashboard-container {
@@ -64,10 +64,11 @@
 
 /* Stat Card */
 .stat-card {
-  background: white;
+  background: var(--bg-primary);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   padding: var(--spacing-6);
+  border: 1px solid var(--border-color);
 }
 
 .stat-card-content {
@@ -134,10 +135,11 @@
 
 /* Content Cards */
 .content-card {
-  background: white;
+  background: var(--bg-primary);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   padding: var(--spacing-6);
+  border: 1px solid var(--border-color);
 }
 
 .content-card-header {
@@ -221,16 +223,16 @@
 
 .quick-action-btn {
   padding: var(--spacing-4);
-  border: 1px solid var(--gray-200);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  background: white;
+  background: var(--bg-primary);
   cursor: pointer;
   text-align: left;
   transition: background-color 0.2s ease;
 }
 
 .quick-action-btn:hover {
-  background-color: var(--gray-50);
+  background-color: var(--bg-secondary);
 }
 
 .quick-action-icon {
@@ -266,7 +268,7 @@
 /* Loading State */
 .loading-container {
   min-height: 100vh;
-  background-color: var(--gray-50);
+  background-color: var(--bg-secondary);
   display: flex;
   align-items: center;
   justify-content: center;

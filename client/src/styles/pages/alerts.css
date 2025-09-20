@@ -2,7 +2,7 @@
 
 .alerts-page {
   min-height: 100vh;
-  background-color: var(--gray-50);
+  background-color: var(--bg-secondary);
 }
 
 .alerts-container {
@@ -33,18 +33,18 @@
 .alerts-title {
   font-size: 1.875rem;
   font-weight: 700;
-  color: var(--gray-900);
+  color: var(--text-primary);
   line-height: 1.25;
 }
 
 .alerts-subtitle {
   margin-top: var(--spacing-2);
-  color: var(--gray-600);
+  color: var(--text-secondary);
 }
 
 /* Search and Filters Panel */
 .search-filters-panel {
-  background: white;
+  background: var(--bg-primary);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   padding: var(--spacing-6);

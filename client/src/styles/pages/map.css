@@ -2,14 +2,14 @@
 
 .map-page {
   height: 100vh;
-  background-color: var(--gray-50);
+  background-color: var(--bg-secondary);
   display: flex;
 }
 
 /* Sidebar */
 .map-sidebar {
   width: 20rem;
-  background: white;
+  background: var(--bg-primary);
   box-shadow: var(--shadow-lg);
   overflow-y: auto;
 }
@@ -21,7 +21,7 @@
 .map-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--gray-900);
+  color: var(--text-primary);
   margin-bottom: var(--spacing-4);
 }
 
@@ -33,7 +33,7 @@
 .route-planning-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--gray-900);
+  color: var(--text-primary);
   margin-bottom: var(--spacing-3);
 }
 

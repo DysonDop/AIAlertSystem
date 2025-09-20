@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, User, Shield, Globe, Moon, Sun, Volume2, VolumeX } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 import '../styles/pages/settings.css';
 
 const SettingsPage = () => {
+  const { theme, setTheme } = useTheme();
+  
   const [settings, setSettings] = useState({
     notifications: {
       pushNotifications: true,
@@ -11,7 +14,7 @@ const SettingsPage = () => {
       soundAlerts: true,
     },
     preferences: {
-      theme: 'light',
+      theme: 'light', // This will be synced with ThemeContext
       language: 'en',
       units: 'metric',
       mapStyle: 'default',
@@ -29,6 +32,17 @@ const SettingsPage = () => {
     },
   });
 
+  // Sync settings with theme context on mount
+  useEffect(() => {
+    setSettings(prev => ({
+      ...prev,
+      preferences: {
+        ...prev.preferences,
+        theme: theme
+      }
+    }));
+  }, [theme]);
+
   const handleSettingChange = (category, key, value) => {
     setSettings(prev => ({
       ...prev,
@@ -37,6 +51,11 @@ const SettingsPage = () => {
         [key]: value,
       },
     }));
+    
+    // Handle theme changes
+    if (category === 'preferences' && key === 'theme') {
+      setTheme(value);
+    }
   };
 
   return (
@@ -134,15 +153,17 @@ const SettingsPage = () => {
                   <h3 className="setting-label">Theme</h3>
                   <p className="setting-description">Choose your preferred theme</p>
                 </div>
-                <select 
-                  className="form-select"
-                  value={settings.preferences.theme}
-                  onChange={(e) => handleSettingChange('preferences', 'theme', e.target.value)}
-                >
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
-                  <option value="auto">Auto</option>
-                </select>
+                <div className="setting-control">
+                  <select 
+                    className="form-select"
+                    value={settings.preferences.theme}
+                    onChange={(e) => handleSettingChange('preferences', 'theme', e.target.value)}
+                  >
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="auto">Auto</option>
+                  </select>
+                </div>
               </div>
 
               <div className="setting-item">
@@ -150,16 +171,18 @@ const SettingsPage = () => {
                   <h3 className="setting-label">Language</h3>
                   <p className="setting-description">Select your language</p>
                 </div>
-                <select 
-                  className="form-select"
-                  value={settings.preferences.language}
-                  onChange={(e) => handleSettingChange('preferences', 'language', e.target.value)}
-                >
-                  <option value="en">English</option>
-                  <option value="es">Español</option>
-                  <option value="fr">Français</option>
-                  <option value="de">Deutsch</option>
-                </select>
+                <div className="setting-control">
+                  <select 
+                    className="form-select"
+                    value={settings.preferences.language}
+                    onChange={(e) => handleSettingChange('preferences', 'language', e.target.value)}
+                  >
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                  </select>
+                </div>
               </div>
 
               <div className="setting-item">
@@ -167,14 +190,16 @@ const SettingsPage = () => {
                   <h3 className="setting-label">Units</h3>
                   <p className="setting-description">Choose measurement units</p>
                 </div>
-                <select 
-                  className="form-select"
-                  value={settings.preferences.units}
-                  onChange={(e) => handleSettingChange('preferences', 'units', e.target.value)}
-                >
-                  <option value="metric">Metric (km, °C)</option>
-                  <option value="imperial">Imperial (mi, °F)</option>
-                </select>
+                <div className="setting-control">
+                  <select 
+                    className="form-select"
+                    value={settings.preferences.units}
+                    onChange={(e) => handleSettingChange('preferences', 'units', e.target.value)}
+                  >
+                    <option value="metric">Metric (km, °C)</option>
+                    <option value="imperial">Imperial (mi, °F)</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>

@@ -37,7 +37,7 @@
 }
 
 .btn-outline:hover {
-  background-color: var(--color-gray-50);
+  background-color: var(--bg-secondary);
 }
 
 .btn-sm {
@@ -57,6 +57,8 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   font-size: var(--font-size-base);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
@@ -80,7 +82,8 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   font-size: var(--font-size-base);
-  background-color: white;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
   background-position: right 0.5rem center;
   background-repeat: no-repeat;
@@ -96,7 +99,7 @@
   height: 1rem;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
-  background-color: white;
+  background-color: var(--bg-primary);
 }
 
 .form-checkbox:checked {
@@ -188,4 +191,25 @@
 
 .status-inactive {
   background-color: var(--color-gray-400);
+}
+
+/* Page Title Styles */
+.page-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+  margin: 0 0 var(--spacing-2) 0;
+}
+
+.page-subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Page Header */
+.page-header {
+  margin-bottom: var(--spacing-8);
 }

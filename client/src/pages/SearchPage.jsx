@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Users, MapPin, Clock, Phone, AlertTriangle } from 'lucide-react';
 import DisasterMap from '../components/maps/DisasterMap';
 import { alertService, searchService } from '../services/api';
+import '../styles/pages/search.css';
 
 const SearchPage = () => {
   const [alerts, setAlerts] = useState([]);
