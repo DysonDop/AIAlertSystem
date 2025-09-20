@@ -1,5 +1,4 @@
 /* Import external stylesheets */
-@import 'leaflet/dist/leaflet.css';
 
 /* Import custom styles */
 @import './styles/variables.css';
@@ -72,10 +71,8 @@ a:hover {
   background: var(--color-gray-400);
 }
 
-/* Leaflet map fixes */
-.leaflet-container {
-  height: 100%;
-  width: 100%;
+/* Google Maps container styles */
+.gm-style {
   font-family: var(--font-family);
 }
 
