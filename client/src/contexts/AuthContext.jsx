@@ -82,12 +82,34 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateProfile = async (profileData) => {
+    try {
+      // Simulate API call - replace with actual update logic
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const updatedUser = {
+        ...user,
+        ...profileData,
+        // Keep the original ID and joinedDate if not provided
+        id: user.id,
+        joinedDate: profileData.joinedDate || user.joinedDate || new Date().toISOString().split('T')[0]
+      };
+      
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      return { success: true, user: updatedUser };
+    } catch (error) {
+      throw new Error(error.message || 'Profile update failed');
+    }
+  };
+
   const value = {
     user,
     loading,
     login,
     register,
     logout,
+    updateProfile,
     isAuthenticated: !!user
   };
 

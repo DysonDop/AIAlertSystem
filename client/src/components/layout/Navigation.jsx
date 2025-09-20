@@ -36,6 +36,11 @@ const Navigation = ({ className }) => {
     navigate('/', { replace: true });
   };
 
+  const handleProfileClick = () => {
+    setShowUserMenu(false);
+    navigate('/app/profile');
+  };
+
   return (
     <nav className={`navbar ${className || ''}`}>
       <div className="navbar-container">
@@ -77,7 +82,11 @@ const Navigation = ({ className }) => {
             
             {showUserMenu && (
               <div className="user-menu">
-                <div className="user-menu-header">
+                <div 
+                  className="user-menu-header"
+                  onClick={handleProfileClick}
+                  style={{ cursor: 'pointer' }}
+                >
                   <div className="user-info">
                     <div className="user-info-name">{user?.name}</div>
                     <div className="user-info-email">{user?.email}</div>

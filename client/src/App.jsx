@@ -12,6 +12,7 @@ import AlertsPage from './pages/AlertsPage.jsx';
 import MapPage from './pages/MapPage.jsx';
 import SearchPage from './pages/SearchPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
               <Route path="map" element={<MapPage />} />
               <Route path="search" element={<SearchPage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="profile" element={<ProfilePage />} />
             </Route>
             
             {/* Legacy routes - redirect to new structure */}

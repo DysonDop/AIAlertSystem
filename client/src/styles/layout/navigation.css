@@ -139,6 +139,13 @@
 
 .user-menu-header {
   padding: var(--spacing-3) var(--spacing-4);
+  transition: background-color 0.2s ease;
+  border-radius: var(--border-radius-sm);
+  margin: var(--spacing-1);
+}
+
+.user-menu-header:hover {
+  background-color: var(--color-gray-50);
 }
 
 .user-info-name {
