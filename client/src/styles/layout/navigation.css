@@ -1,0 +1,121 @@
+/* Navigation Component */
+.navbar {
+  background-color: white;
+  box-shadow: var(--shadow-lg);
+}
+
+.navbar-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  height: 4rem;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo {
+  height: 2rem;
+  width: 2rem;
+  color: var(--color-primary);
+}
+
+.navbar-title {
+  margin-left: var(--space-sm);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.navbar-nav {
+  display: none;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+.navbar-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: var(--border-radius);
+  transition: var(--transition-colors);
+  text-decoration: none;
+}
+
+.navbar-link:hover {
+  color: var(--color-primary);
+  background-color: var(--color-gray-50);
+}
+
+.navbar-link.active {
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.navbar-link-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: var(--space-sm);
+}
+
+/* Mobile menu button */
+.navbar-mobile-btn {
+  display: flex;
+  align-items: center;
+  padding: var(--space-sm);
+  color: var(--text-secondary);
+  transition: var(--transition-colors);
+}
+
+.navbar-mobile-btn:hover {
+  color: var(--color-primary);
+}
+
+.navbar-mobile-menu {
+  display: block;
+  padding: var(--space-sm) 0 0.75rem;
+  background-color: var(--color-gray-50);
+}
+
+.navbar-mobile-menu .navbar-link {
+  display: flex;
+  margin: 0 var(--space-sm);
+  padding: 0.75rem;
+  border-radius: var(--border-radius);
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .navbar-nav {
+    display: flex;
+  }
+  
+  .navbar-mobile-btn {
+    display: none;
+  }
+  
+  .navbar-mobile-menu {
+    display: none;
+  }
+}
+
+@media (min-width: 640px) {
+  .navbar-container {
+    padding: 0 var(--space-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .navbar-container {
+    padding: 0 var(--space-xl);
+  }
+}
