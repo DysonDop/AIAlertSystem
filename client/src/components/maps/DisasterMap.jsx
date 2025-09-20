@@ -1,139 +1,132 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
-import L from 'leaflet';
+import React, { useState, useEffect, useRef } from 'react';
+import GoogleMapsService from '../../services/googleMapsService.js';
 
-// Fix for default markers in react-leaflet
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-const DisasterMap = ({
-  alerts,
-  center = { lat: 37.7749, lng: -122.4194 }, // Default to San Francisco
-  zoom = 10,
-  height = '500px',
-  onAlertClick,
-  showRadius = true,
+const DisasterMap = ({ 
+  alerts = [], 
+  routes = [], 
+  safeZones = [], 
+  onAlertClick, 
+  center = { lat: 37.7749, lng: -122.4194 }, 
+  zoom = 12 
 }) => {
-  const getMarkerColor = (severity) => {
-    switch (severity) {
-      case 'critical': return '#ef4444';
-      case 'high': return '#f97316';
-      case 'medium': return '#eab308';
-      case 'low': return '#3b82f6';
-      default: return '#6b7280';
-    }
-  };
+  const [selectedAlert, setSelectedAlert] = useState(null);
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const mapRef = useRef();
+  const googleMapsServiceRef = useRef(null);
 
-  const createCustomIcon = (alert) => {
-    const color = getMarkerColor(alert.severity);
-    return L.divIcon({
-      html: `
-        <div style="
-          background-color: ${color};
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 10px;
-          font-weight: bold;
-        ">
-          ${getAlertEmoji(alert.type)}
-        </div>
-      `,
-      className: 'custom-div-icon',
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
+  useEffect(() => {
+    const initializeMap = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Check if Google Maps API key is available
+        if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
+          throw new Error('Google Maps API key not found. Please check your environment variables.');
+        }
+
+        // Initialize Google Maps service
+        googleMapsServiceRef.current = new GoogleMapsService();
+        
+        // Initialize the map
+        await googleMapsServiceRef.current.initializeMap(mapRef.current, {
+          center,
+          zoom,
+          mapTypeId: 'roadmap'
+        });
+
+        setIsLoading(false);
+      } catch (err) {
+        console.error('Error initializing Google Maps:', err);
+        setError(err.message);
+        setIsLoading(false);
+      }
+    };
+
+    if (mapRef.current) {
+      initializeMap();
+    }
+
+    // Cleanup function
+    return () => {
+      if (googleMapsServiceRef.current) {
+        googleMapsServiceRef.current.clearMarkers();
+        googleMapsServiceRef.current.clearPolylines();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!googleMapsServiceRef.current || isLoading) return;
+
+    // Clear existing markers and polylines
+    googleMapsServiceRef.current.clearMarkers();
+    googleMapsServiceRef.current.clearPolylines();
+
+    // Add alert markers
+    alerts.forEach(alert => {
+      googleMapsServiceRef.current.addAlertMarker(alert, (clickedAlert) => {
+        setSelectedAlert(clickedAlert);
+        if (onAlertClick) {
+          onAlertClick(clickedAlert);
+        }
+      });
     });
-  };
 
-  const getAlertEmoji = (type) => {
-    switch (type) {
-      case 'earthquake': return '🌍';
-      case 'flood': return '🌊';
-      case 'fire': return '🔥';
-      case 'storm': return '⛈️';
-      case 'tsunami': return '🌊';
-      case 'hurricane': return '🌀';
-      case 'tornado': return '🌪️';
-      default: return '⚠️';
-    }
-  };
+    // Add safe zone markers
+    safeZones.forEach(zone => {
+      googleMapsServiceRef.current.addSafeZoneMarker(zone);
+    });
 
-  const getRadiusColor = (severity) => {
-    switch (severity) {
-      case 'critical': return '#fecaca';
-      case 'high': return '#fed7aa';
-      case 'medium': return '#fef3c7';
-      case 'low': return '#dbeafe';
-      default: return '#f3f4f6';
+    // Display routes
+    if (routes.length > 0 && routes[0].encodedPolyline) {
+      // Use the origin and destination from the first route
+      const origin = { lat: routes[0].legs[0].startLocation.lat, lng: routes[0].legs[0].startLocation.lng };
+      const destination = { lat: routes[0].legs[0].endLocation.lat, lng: routes[0].legs[0].endLocation.lng };
+      googleMapsServiceRef.current.displayRoutes(routes, origin, destination);
     }
-  };
+  }, [alerts, routes, safeZones, onAlertClick, isLoading]);
+
+  useEffect(() => {
+    if (!googleMapsServiceRef.current || isLoading) return;
+
+    // Update map center when center prop changes
+    googleMapsServiceRef.current.setCenter(center, zoom);
+  }, [center, zoom, isLoading]);
+
+  if (error) {
+    return (
+      <div className="disaster-map error-state">
+        <div className="error-message">
+          <h3>Map Loading Error</h3>
+          <p>{error}</p>
+          <p>Please check your Google Maps API configuration and try again.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ height }} className="rounded-lg overflow-hidden shadow-lg">
-      <MapContainer
-        center={[center.lat, center.lng]}
-        zoom={zoom}
-        style={{ height: '100%', width: '100%' }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        
-        {alerts.map((alert) => (
-          <React.Fragment key={alert.id}>
-            {/* Alert Radius */}
-            {showRadius && (
-              <Circle
-                center={[alert.location.lat, alert.location.lng]}
-                radius={alert.location.radius * 1000} // Convert km to meters
-                fillColor={getRadiusColor(alert.severity)}
-                fillOpacity={0.2}
-                color={getMarkerColor(alert.severity)}
-                opacity={0.6}
-                weight={2}
-              />
-            )}
-            
-            {/* Alert Marker */}
-            <Marker
-              position={[alert.location.lat, alert.location.lng]}
-              icon={createCustomIcon(alert)}
-              eventHandlers={{
-                click: () => onAlertClick?.(alert),
-              }}
-            >
-              <Popup>
-                <div className="min-w-[200px]">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-lg">{getAlertEmoji(alert.type)}</span>
-                    <h3 className="font-semibold text-gray-900">{alert.title}</h3>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-2">{alert.description}</p>
-                  <div className="text-xs text-gray-500 space-y-1">
-                    <div>Severity: <span className="font-medium">{alert.severity}</span></div>
-                    <div>Location: {alert.location.address}</div>
-                    <div>Time: {new Date(alert.timestamp).toLocaleString()}</div>
-                    <div>Status: <span className={alert.isActive ? 'text-green-600' : 'text-gray-600'}>
-                      {alert.isActive ? 'Active' : 'Inactive'}
-                    </span></div>
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          </React.Fragment>
-        ))}
-      </MapContainer>
+    <div className="disaster-map">
+      {isLoading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Loading Google Maps...</p>
+          </div>
+        </div>
+      )}
+      <div
+        ref={mapRef}
+        className="map-container"
+        style={{ 
+          height: '100%', 
+          width: '100%',
+          display: isLoading ? 'none' : 'block'
+        }}
+      />
     </div>
   );
 };

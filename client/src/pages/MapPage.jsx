@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Navigation, Route as RouteIcon } from 'lucide-react';
 import DisasterMap from '../components/maps/DisasterMap.jsx';
-import { alertService, routeService } from '../services/api';
+import RouteControls from '../components/maps/RouteControls.jsx';
+import { alertService } from '../services/api.js';
 import '../styles/pages/map.css';
 
 const MapPage = () => {
   const [alerts, setAlerts] = useState([]);
-  const [selectedAlert, setSelectedAlert] = useState(null);
   const [routes, setRoutes] = useState([]);
+  const [safeZones, setSafeZones] = useState([]);
+  const [selectedAlert, setSelectedAlert] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showRoutes, setShowRoutes] = useState(false);
-  const [routeOrigin, setRouteOrigin] = useState(null);
-  const [routeDestination, setRouteDestination] = useState(null);
+  const googleMapsServiceRef = useRef(null);
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -69,32 +69,13 @@ const MapPage = () => {
     setSelectedAlert(alert);
   };
 
-  const handleGetRoutes = async () => {
-    if (!routeOrigin || !routeDestination) return;
-    
-    try {
-      const routeData = await routeService.getOptimalRoutes(routeOrigin, routeDestination);
-      setRoutes(routeData);
-      setShowRoutes(true);
-    } catch (error) {
-      console.error('Failed to get routes:', error);
-      // Mock route data
-      const mockRoutes = [
-        {
-          id: '1',
-          origin: routeOrigin,
-          destination: routeDestination,
-          waypoints: [],
-          distance: 15000,
-          duration: 1200,
-          instructions: ['Head north', 'Turn right', 'Continue straight'],
-          alertsOnRoute: [],
-          isRecommended: true,
-        },
-      ];
-      setRoutes(mockRoutes);
-      setShowRoutes(true);
-    }
+  const handleRoutesGenerated = (newRoutes, origin, destination) => {
+    setRoutes(newRoutes);
+    console.log('Routes generated:', newRoutes);
+  };
+
+  const handleMapServiceReady = (googleMapsService) => {
+    googleMapsServiceRef.current = googleMapsService;
   };
 
   const getAlertEmoji = (type) => {
@@ -134,39 +115,11 @@ const MapPage = () => {
         <div className="map-sidebar-content">
           <h1 className="map-title">Live Map</h1>
           
-          {/* Route Planning */}
-          <div className="route-planning">
-            <h2 className="route-planning-title">Route Planning</h2>
-            <div className="route-form">
-              <div className="route-input-group">
-                <label className="route-input-label">
-                  Origin
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter starting location"
-                  className="route-input"
-                />
-              </div>
-              <div className="route-input-group">
-                <label className="route-input-label">
-                  Destination
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter destination"
-                  className="route-input"
-                />
-              </div>
-              <button
-                onClick={handleGetRoutes}
-                className="route-button"
-              >
-                <Navigation className="route-button-icon" />
-                Get Safe Routes
-              </button>
-            </div>
-          </div>
+          {/* Route Controls */}
+          <RouteControls
+            onRoutesGenerated={handleRoutesGenerated}
+            googleMapsService={googleMapsServiceRef.current}
+          />
 
           {/* Active Alerts */}
           <div className="alerts-section">
@@ -198,35 +151,6 @@ const MapPage = () => {
               ))}
             </div>
           </div>
-
-          {/* Routes */}
-          {showRoutes && routes.length > 0 && (
-            <div className="routes-section">
-              <h2 className="routes-section-title">
-                Recommended Routes
-              </h2>
-              <div className="routes-list">
-                {routes.map((route, index) => (
-                  <div
-                    key={route.id}
-                    className="route-item"
-                  >
-                    <div className="route-header">
-                      <RouteIcon className="route-icon" />
-                      <span className="route-title">
-                        Route {index + 1} {route.isRecommended && '(Recommended)'}
-                      </span>
-                    </div>
-                    <div className="route-details">
-                      <div>Distance: {(route.distance / 1000).toFixed(1)} km</div>
-                      <div>Time: {Math.round(route.duration / 60)} minutes</div>
-                      <div>Alerts on route: {route.alertsOnRoute.length}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -234,8 +158,8 @@ const MapPage = () => {
       <div className="map-container">
         <DisasterMap
           alerts={alerts}
-          height="100vh"
-          showRadius={true}
+          routes={routes}
+          safeZones={safeZones}
           onAlertClick={handleAlertClick}
           center={{ lat: 37.7749, lng: -122.4194 }}
           zoom={12}
