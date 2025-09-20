@@ -11,8 +11,24 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('light');
-  const [systemPreference, setSystemPreference] = useState('light');
+  // Initialize theme from localStorage immediately to avoid flash
+  const [theme, setTheme] = useState(() => {
+    try {
+      const savedTheme = localStorage.getItem('theme');
+      return savedTheme && ['light', 'dark', 'auto'].includes(savedTheme) ? savedTheme : 'auto';
+    } catch {
+      return 'auto';
+    }
+  });
+  
+  // Initialize system preference immediately
+  const [systemPreference, setSystemPreference] = useState(() => {
+    try {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } catch {
+      return 'light';
+    }
+  });
 
   useEffect(() => {
     // Listen for system theme changes
@@ -21,31 +37,23 @@ export const ThemeProvider = ({ children }) => {
       setSystemPreference(e.matches ? 'dark' : 'light');
     };
 
-    // Set initial system preference
-    setSystemPreference(mediaQuery.matches ? 'dark' : 'light');
-
     // Add listener for system changes
     mediaQuery.addEventListener('change', handleSystemChange);
 
     return () => mediaQuery.removeEventListener('change', handleSystemChange);
   }, []);
 
+  // Apply theme immediately on mount and when theme/systemPreference changes
   useEffect(() => {
-    // Check for saved theme preference or default to auto
-    const savedTheme = localStorage.getItem('theme');
-    
-    if (savedTheme && ['light', 'dark', 'auto'].includes(savedTheme)) {
-      setTheme(savedTheme);
-    } else {
-      setTheme('auto');
-    }
-  }, []);
-
-  useEffect(() => {
-    // Apply theme to document
     const effectiveTheme = theme === 'auto' ? systemPreference : theme;
     document.documentElement.setAttribute('data-theme', effectiveTheme);
-    localStorage.setItem('theme', theme);
+    
+    // Save theme preference (but not the effective theme)
+    try {
+      localStorage.setItem('theme', theme);
+    } catch (error) {
+      console.warn('Could not save theme preference:', error);
+    }
   }, [theme, systemPreference]);
 
   const toggleTheme = () => {

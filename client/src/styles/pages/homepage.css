@@ -37,12 +37,6 @@
   color: var(--color-primary);
 }
 
-.brand-name {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
 .nav-actions {
   display: flex;
   align-items: center;
@@ -396,7 +390,7 @@
 /* CTA Section */
 .cta-section {
   padding: var(--spacing-12) var(--spacing-6);
-  background: var(--bg-gradient);
+  background: linear-gradient(135deg, #3D5A80, #98C1D9);
   color: var(--text-inverse);
 }
 
