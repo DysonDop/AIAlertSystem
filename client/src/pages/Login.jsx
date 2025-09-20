@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,7 +7,7 @@ import '../styles/pages/auth.css';
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, user, isAuthenticated, loading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -17,6 +17,13 @@ const Login = () => {
   const [error, setError] = useState('');
 
   const from = location.state?.from?.pathname || '/app/dashboard';
+
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [authLoading, isAuthenticated, navigate, from]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,6 +51,25 @@ const Login = () => {
     }
   };
 
+  // Show success message if coming from registration
+  const successMessage = location.state?.message;
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="auth-page">
+        <div className="auth-container">
+          <div className="loading-container">
+            <div className="loading-content">
+              <div className="loading-spinner"></div>
+              <p className="loading-text">Checking authentication...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="auth-page">
       <div className="auth-container">
@@ -63,6 +89,12 @@ const Login = () => {
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit}>
+            {successMessage && (
+              <div className="auth-success">
+                <span>{successMessage}</span>
+              </div>
+            )}
+
             {error && (
               <div className="auth-error">
                 <AlertTriangle size={16} />

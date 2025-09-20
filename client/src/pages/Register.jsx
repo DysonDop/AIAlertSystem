@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,17 +6,30 @@ import '../styles/pages/auth.css';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { register: registerUser } = useAuth();
+  const { register: registerUser, confirmRegistration, resendConfirmationCode, user, isAuthenticated, loading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
+  const [confirmationData, setConfirmationData] = useState({
+    code: '',
+    email: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [step, setStep] = useState('register'); // 'register' or 'confirm'
+
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate('/app/dashboard', { replace: true });
+    }
+  }, [authLoading, isAuthenticated, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,8 +50,8 @@ const Register = () => {
       setError('Email is required');
       return false;
     }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters');
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
@@ -57,17 +70,75 @@ const Register = () => {
 
     setLoading(true);
     setError('');
+    setSuccess('');
 
     try {
-      await registerUser(formData.name, formData.email, formData.password);
-      // Redirect to dashboard after successful registration
-      navigate('/app/dashboard', { replace: true });
+      const result = await registerUser(formData.name, formData.email, formData.password);
+      
+      if (result.success) {
+        // User was automatically signed in
+        navigate('/app/dashboard', { replace: true });
+      } else if (result.requiresConfirmation) {
+        // User needs to confirm email
+        setConfirmationData({ code: '', email: formData.email });
+        setStep('confirm');
+        setSuccess(result.message);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleConfirmSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      await confirmRegistration(confirmationData.email, confirmationData.code);
+      // After confirmation, redirect to login
+      navigate('/login', { 
+        replace: true,
+        state: { message: 'Email confirmed! Please sign in to continue.' }
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      await resendConfirmationCode(confirmationData.email);
+      setSuccess('Verification code sent to your email!');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="auth-page">
+        <div className="auth-container">
+          <div className="loading-container">
+            <div className="loading-content">
+              <div className="loading-spinner"></div>
+              <p className="loading-text">Checking authentication...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-page">
@@ -83,11 +154,71 @@ const Register = () => {
         {/* Form */}
         <div className="auth-card">
           <div className="auth-card-header">
-            <h1 className="auth-title">Create your account</h1>
-            <p className="auth-subtitle">Join us to stay safe and informed</p>
+            <h1 className="auth-title">
+              {step === 'register' ? 'Create your account' : 'Confirm your email'}
+            </h1>
+            <p className="auth-subtitle">
+              {step === 'register' 
+                ? 'Join us to stay safe and informed' 
+                : `We sent a verification code to ${confirmationData.email}`}
+            </p>
           </div>
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          {step === 'confirm' ? (
+            <form className="auth-form" onSubmit={handleConfirmSubmit}>
+              {error && (
+                <div className="auth-error">
+                  <AlertTriangle size={16} />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {success && (
+                <div className="auth-success">
+                  <span>{success}</span>
+                </div>
+              )}
+
+              <div className="form-group">
+                <label htmlFor="code" className="form-label">
+                  Verification code
+                </label>
+                <div className="input-wrapper">
+                  <Mail className="input-icon" />
+                  <input
+                    id="code"
+                    name="code"
+                    type="text"
+                    required
+                    className="form-input"
+                    placeholder="Enter verification code"
+                    value={confirmationData.code}
+                    onChange={(e) => setConfirmationData(prev => ({ ...prev, code: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="auth-button"
+                disabled={loading}
+              >
+                {loading ? 'Confirming...' : 'Confirm Email'}
+              </button>
+
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="form-link"
+                  onClick={handleResendCode}
+                  disabled={loading}
+                >
+                  Didn't receive code? Resend
+                </button>
+              </div>
+            </form>
+          ) : (
+            <form className="auth-form" onSubmit={handleSubmit}>
             {error && (
               <div className="auth-error">
                 <AlertTriangle size={16} />
@@ -200,21 +331,37 @@ const Register = () => {
               </label>
             </div>
 
-            <button
-              type="submit"
-              className="auth-button"
-              disabled={loading}
-            >
-              {loading ? 'Creating account...' : 'Create account'}
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="auth-button"
+                disabled={loading}
+              >
+                {loading ? 'Creating account...' : 'Create account'}
+              </button>
+            </form>
+          )}
 
           <div className="auth-footer">
             <p className="auth-footer-text">
-              Already have an account?{' '}
-              <Link to="/login" className="auth-footer-link">
-                Sign in
-              </Link>
+              {step === 'confirm' ? (
+                <>
+                  Want to use a different email?{' '}
+                  <button
+                    type="button"
+                    className="auth-footer-link"
+                    onClick={() => setStep('register')}
+                  >
+                    Go back
+                  </button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{' '}
+                  <Link to="/login" className="auth-footer-link">
+                    Sign in
+                  </Link>
+                </>
+              )}
             </p>
           </div>
         </div>
