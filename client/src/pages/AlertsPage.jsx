@@ -5,6 +5,44 @@ import Navigation from '../components/layout/Navigation.jsx';
 import { alertService, searchService } from '../services/api.js';
 import '../styles/pages/alerts.css';
 
+// Manual Alerts Component
+function AlertsList() {
+  const [alerts, setAlerts] = useState([]);
+
+  useEffect(() => {
+    async function loadAlerts() {
+      try {
+        const resp = await fetch("https://kj5uk03dk9.execute-api.us-east-1.amazonaws.com/alerts/manual");
+        const data = await resp.json();
+        setAlerts(data.alerts || []);
+      } catch (error) {
+        console.error('Failed to load manual alerts:', error);
+      }
+    }
+    loadAlerts();
+  }, []);
+
+  return (
+    <div className="manual-alerts-section">
+      <h3>Manual Alerts</h3>
+      <div className="manual-alerts-list">
+        {alerts.length === 0 ? (
+          <p>No manual alerts available</p>
+        ) : (
+          alerts.map(a => (
+            <div key={a.id} className="manual-alert-item">
+              <span className={`alert-type ${a.severity?.toLowerCase()}`}>{a.type}</span>
+              <span className="alert-severity">{a.severity}</span>
+              <span className="alert-description">{a.description}</span>
+              <span className="alert-time">{new Date(a.createdAt).toLocaleString()}</span>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 const AlertsPage = () => {
   const [alerts, setAlerts] = useState([]);
   const [filteredAlerts, setFilteredAlerts] = useState([]);
@@ -237,6 +275,9 @@ const AlertsPage = () => {
             </p>
           </div>
         )}
+
+        {/* Manual Alerts Section */}
+        <AlertsList />
       </div>
     </div>
   );
