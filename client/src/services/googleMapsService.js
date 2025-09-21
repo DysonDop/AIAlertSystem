@@ -9,65 +9,33 @@ class GoogleMapsService {
     this.markers = [];
     this.polylines = [];
     this.isLoaded = false;
-    this.mapsConfig = null;
-  }
-
-  async fetchMapsConfig() {
-    if (this.mapsConfig) return this.mapsConfig;
-
-    try {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
-      const response = await fetch(`${apiBaseUrl}/api/maps/config`);
-      if (!response.ok) throw new Error('Failed to fetch maps configuration');
-
-      this.mapsConfig = await response.json();
-      return this.mapsConfig;
-    } catch (error) {
-      console.error('Error fetching maps config:', error);
-      throw new Error(
-        'Unable to load Google Maps configuration. Please ensure the backend is running and configured properly.'
-      );
-    }
   }
 
   async loadGoogleMaps() {
     if (this.isLoaded) return this.google;
 
-    // Use environment variable for API base URL
-    const apiBaseUrl = import.meta.env.VITE_MAPS_API_BASE_URL || 'http://localhost:3000';
-    const { apiKey, mapId, libraries, version } = await fetch(`${apiBaseUrl}/api/maps/config`).then(res => res.json());
-
     const loader = new Loader({
-      apiKey,
-      version,
-      libraries,
-      mapIds: [mapId], // mapId is used here
+      apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+      version: "weekly",
+      libraries: ["places"],
+      mapIds: [import.meta.env.VITE_GOOGLE_MAPS_ID],
     });
 
     await loader.load();
     this.google = window.google;
 
-    try {
-      await this.google.maps.importLibrary('marker');
-    } catch (error) {
-      console.warn('Could not import marker library:', error);
-    }
-
     this.isLoaded = true;
+
     return this.google;
   }
 
   async initializeMap(container, options = {}) {
     await this.loadGoogleMaps();
     
-    // Use environment variable for API base URL
-    const apiBaseUrl = import.meta.env.VITE_MAPS_API_BASE_URL || 'http://localhost:3000';
-    const { apiKey, mapId, libraries, version } = await fetch(`${apiBaseUrl}/api/maps/config`).then(res => res.json());
-    
     const defaultOptions = {
       center: { lat: 0, lng: 0 },
       zoom: 10,
-      mapId: mapId, // also set in the map options
+      mapId: import.meta.env.VITE_GOOGLE_MAPS_ID,
       ...options
     };
 

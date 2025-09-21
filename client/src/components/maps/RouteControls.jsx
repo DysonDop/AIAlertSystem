@@ -20,7 +20,7 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
     setError(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/getRoute`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/getRoute`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
     setError(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/getSafeZones`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/getSafeZones`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
