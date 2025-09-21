@@ -16,9 +16,23 @@ const DisasterMap = ({
   const [error, setError] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [showLocationNotification, setShowLocationNotification] = useState(false);
+  const [showRainfallHeatmap, setShowRainfallHeatmap] = useState(false);
   const mapRef = useRef();
   const googleMapsServiceRef = useRef(null);
   const mapInstanceRef = useRef(null);
+  const heatmapLayerRef = useRef(null);
+
+  // Mock rainfall data points
+  const rainfallPoints = [
+    { lat: 3.1390, lng: 101.6869, intensity: 0.9 }, // heavy rainfall KL
+    { lat: 3.1450, lng: 101.6900, intensity: 0.6 }, // medium
+    { lat: 3.1500, lng: 101.6800, intensity: 0.3 }, // light
+    { lat: 3.1320, lng: 101.6850, intensity: 0.8 }, // heavy rainfall
+    { lat: 3.1480, lng: 101.6950, intensity: 0.4 }, // light-medium
+    { lat: 3.1420, lng: 101.6750, intensity: 0.7 }, // medium-heavy
+    { lat: 3.1350, lng: 101.6920, intensity: 0.5 }, // medium
+    { lat: 3.1470, lng: 101.6820, intensity: 0.2 }, // very light
+  ];
 
   // Create user location marker element
   const createUserMarkerElement = () => {
@@ -59,6 +73,55 @@ const DisasterMap = ({
     
     element.appendChild(pulse);
     return element;
+  };
+
+  // Generate rainfall heatmap
+  const generateRainfallHeatmap = () => {
+    if (!mapInstanceRef.current || !googleMapsServiceRef.current.google) return;
+
+    const google = googleMapsServiceRef.current.google;
+    
+    // Convert rainfall points to heatmap data
+    const heatmapData = rainfallPoints.map(point => ({
+      location: new google.maps.LatLng(point.lat, point.lng),
+      weight: point.intensity
+    }));
+
+    // Create heatmap layer
+    heatmapLayerRef.current = new google.maps.visualization.HeatmapLayer({
+      data: heatmapData,
+      map: showRainfallHeatmap ? mapInstanceRef.current : null,
+      radius: 30,
+      maxIntensity: 1.0,
+      gradient: [
+        'rgba(0, 255, 255, 0)',    // transparent
+        'rgba(0, 255, 255, 1)',    // cyan (light rain)
+        'rgba(0, 191, 255, 1)',    // deep sky blue
+        'rgba(0, 127, 255, 1)',    // dodger blue
+        'rgba(0, 63, 255, 1)',     // blue
+        'rgba(0, 0, 255, 1)',      // pure blue
+        'rgba(63, 0, 191, 1)',     // blue-purple
+        'rgba(127, 0, 127, 1)',    // purple
+        'rgba(191, 0, 63, 1)',     // red-purple
+        'rgba(255, 0, 0, 1)',      // red (heavy rainfall)
+        'rgba(255, 63, 0, 1)',     // orange-red
+        'rgba(255, 127, 0, 1)',    // orange
+        'rgba(255, 191, 0, 1)',    // yellow-orange
+        'rgba(255, 255, 0, 1)'     // yellow (moderate)
+      ]
+    });
+  };
+
+  // Toggle rainfall heatmap
+  const toggleRainfallHeatmap = () => {
+    if (heatmapLayerRef.current) {
+      const newState = !showRainfallHeatmap;
+      setShowRainfallHeatmap(newState);
+      heatmapLayerRef.current.setMap(newState ? mapInstanceRef.current : null);
+    } else if (!showRainfallHeatmap) {
+      setShowRainfallHeatmap(true);
+      generateRainfallHeatmap();
+    }
   };
 
   useEffect(() => {
@@ -132,6 +195,9 @@ const DisasterMap = ({
           });
         }
 
+        // Generate rainfall heatmap (initially hidden)
+        generateRainfallHeatmap();
+
         setIsLoading(false);
       } catch (err) {
         console.error('Error initializing Google Maps:', err);
@@ -149,6 +215,10 @@ const DisasterMap = ({
       if (googleMapsServiceRef.current) {
         googleMapsServiceRef.current.clearMarkers();
         googleMapsServiceRef.current.clearPolylines();
+      }
+      if (heatmapLayerRef.current) {
+        heatmapLayerRef.current.setMap(null);
+        heatmapLayerRef.current = null;
       }
     };
   }, []);
@@ -245,6 +315,22 @@ const DisasterMap = ({
           </div>
         </div>
       )}
+      
+      {/* Rainfall Heatmap Toggle */}
+      <div className="map-controls">
+        <div className="rainfall-heatmap-control">
+          <label className="heatmap-toggle">
+            <input
+              type="checkbox"
+              checked={showRainfallHeatmap}
+              onChange={toggleRainfallHeatmap}
+              disabled={isLoading}
+            />
+            <span className="toggle-label">🌧️ Rainfall Heatmap</span>
+          </label>
+        </div>
+      </div>
+      
       <div
         id="map"
         ref={mapRef}

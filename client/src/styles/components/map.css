@@ -460,3 +460,53 @@
 .pulse-animation {
   animation: pulse 2s infinite;
 }
+
+/* ------------------------------------ */
+/* 8. MAP CONTROLS                      */
+/* ------------------------------------ */
+.map-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: var(--border-radius-md);
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.rainfall-heatmap-control {
+  margin-bottom: 0.75rem;
+}
+
+.rainfall-heatmap-control:last-child {
+  margin-bottom: 0;
+}
+
+.heatmap-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.heatmap-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.heatmap-toggle .toggle-label {
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.heatmap-toggle input[type="checkbox"]:disabled + .toggle-label {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
