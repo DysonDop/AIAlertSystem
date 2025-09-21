@@ -111,7 +111,8 @@
   color: var(--gray-700);
 }
 
-.input-wrapper {
+.input-wrapper,
+.input-container {
   position: relative;
   display: flex;
   align-items: center;
@@ -135,6 +136,11 @@
   transition: all 0.2s ease;
   background: white;
   color: var(--palette-dark-blue-gray); /* Dark text for readability */
+}
+
+/* Input with both left icon and right action button */
+.input-container .form-input {
+  padding-right: 3rem;
 }
 
 .form-input:focus {
@@ -341,4 +347,81 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Forgot Password Specific Styles */
+.auth-icon.success {
+  color: var(--color-green-600);
+}
+
+.auth-footer-link-button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.auth-footer-link-button:hover {
+  color: var(--color-primary-700);
+}
+
+.password-requirements {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+  font-size: 0.875rem;
+}
+
+.password-requirements h4 {
+  margin: 0 0 var(--spacing-2) 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.password-requirements ul {
+  margin: 0;
+  padding-left: var(--spacing-4);
+  color: var(--text-secondary);
+}
+
+.password-requirements li {
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.password-requirements .requirement-met {
+  color: var(--color-green-600);
+}
+
+.password-requirements .requirement-unmet {
+  color: var(--color-red-600);
+}
+
+.password-requirements .requirement-met svg {
+  color: var(--color-green-600);
+}
+
+.password-requirements .requirement-unmet svg {
+  color: var(--color-red-600);
+}
+
+.auth-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.auth-footer-link:hover {
+  color: var(--color-primary-700);
 }
