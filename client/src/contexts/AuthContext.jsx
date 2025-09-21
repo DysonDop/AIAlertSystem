@@ -23,17 +23,30 @@ export const AuthProvider = ({ children }) => {
       try {
         const currentUser = await getCurrentUser();
         if (currentUser) {
-          setUser({
+          // Try to load saved profile from localStorage
+          const savedProfile = localStorage.getItem('userProfile');
+          let userProfile = {
             id: currentUser.userId,
             email: currentUser.signInDetails?.loginId || currentUser.username,
             name: currentUser.signInDetails?.loginId?.split('@')[0] || currentUser.username,
             username: currentUser.username,
             attributes: currentUser.attributes || {}
-          });
+          };
+          
+          // Merge with saved profile if available
+          if (savedProfile) {
+            try {
+              const parsedProfile = JSON.parse(savedProfile);
+              userProfile = { ...userProfile, ...parsedProfile };
+            } catch (e) {
+              console.warn('Failed to parse saved profile:', e);
+            }
+          }
+          
+          setUser(userProfile);
         }
       } catch (error) {
         console.log('No authenticated user found');
-        // User is not signed in, which is fine
         setUser(null);
       } finally {
         setLoading(false);
@@ -158,29 +171,66 @@ export const AuthProvider = ({ children }) => {
 
   const updateProfile = async (profileData) => {
     try {
-      // Update user attributes in Cognito
-      const { updateUserAttributes } = await import('aws-amplify/auth');
+      let cognitoSuccess = true;
+      let cognitoError = null;
       
-      // Prepare attributes for Cognito
-      const attributes = {};
-      if (profileData.name) attributes.name = profileData.name;
-      if (profileData.phone) attributes.phone_number = profileData.phone;
-      
-      if (Object.keys(attributes).length > 0) {
-        await updateUserAttributes({
-          userAttributes: attributes
-        });
+      try {
+        // Update user attributes in Cognito
+        const { updateUserAttributes, getCurrentUser } = await import('aws-amplify/auth');
+        
+        // Verify we have a current user
+        const currentUser = await getCurrentUser();
+        
+        // Prepare attributes for Cognito
+        const attributes = {};
+        if (profileData.name && profileData.name !== user?.name) {
+          attributes.name = profileData.name;
+        }
+        if (profileData.phone && profileData.phone !== user?.phone) {
+          // Format phone number to E.164 format if needed
+          let formattedPhone = profileData.phone;
+          if (formattedPhone && !formattedPhone.startsWith('+')) {
+            // Add default country code if not present (assuming US +1)
+            if (formattedPhone.length === 10) {
+              formattedPhone = '+1' + formattedPhone;
+            } else if (formattedPhone.length === 11 && formattedPhone.startsWith('1')) {
+              formattedPhone = '+' + formattedPhone;
+            } else {
+              formattedPhone = '+' + formattedPhone;
+            }
+          }
+          attributes.phone_number = formattedPhone;
+        }
+        
+        if (Object.keys(attributes).length > 0) {
+          await updateUserAttributes({
+            userAttributes: attributes
+          });
+        }
+      } catch (cognitoErr) {
+        console.warn('Cognito update failed:', cognitoErr.message);
+        cognitoSuccess = false;
+        cognitoError = cognitoErr;
       }
       
-      // Update local user state
+      // Update local user state regardless of Cognito result
       const updatedUser = {
         ...user,
         ...profileData,
-        joinedDate: profileData.joinedDate || user.joinedDate || new Date().toISOString().split('T')[0]
+        joinedDate: profileData.joinedDate || user?.joinedDate || new Date().toISOString().split('T')[0]
       };
       
       setUser(updatedUser);
-      return { success: true, user: updatedUser };
+      
+      // Store in localStorage for persistence
+      localStorage.setItem('userProfile', JSON.stringify(updatedUser));
+      
+      return { 
+        success: true, 
+        user: updatedUser, 
+        cognitoSuccess,
+        cognitoError: cognitoError?.message || null
+      };
     } catch (error) {
       console.error('Profile update error:', error);
       throw new Error(error.message || 'Profile update failed');

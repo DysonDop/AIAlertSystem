@@ -128,26 +128,28 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
       <div className="route-form">
         <h3>🚨 Emergency Route Planning</h3>
         
-        <div className="input-group">
-          <label htmlFor="origin">Origin:</label>
-          <input
-            ref={originRef}
-            type="text"
-            id="origin"
-            placeholder="Enter starting location (e.g., San Francisco, CA)"
-            disabled={isGenerating}
-          />
-        </div>
+        <div className="input-section">
+          <div className="input-group">
+            <label htmlFor="origin">Origin: </label>
+            <input
+              ref={originRef}
+              type="text"
+              id="origin"
+              placeholder="Enter starting location (e.g., San Francisco, CA)"
+              disabled={isGenerating}
+            />
+          </div>
 
-        <div className="input-group">
-          <label htmlFor="destination">Destination:</label>
-          <input
-            ref={destinationRef}
-            type="text"
-            id="destination"
-            placeholder="Enter destination (e.g., Oakland, CA)"
-            disabled={isGenerating}
-          />
+          <div className="input-group">
+            <label htmlFor="destination">Destination: </label>
+            <input
+              ref={destinationRef}
+              type="text"
+              id="destination"
+              placeholder="Enter destination (e.g., Oakland, CA)"
+              disabled={isGenerating}
+            />
+          </div>
         </div>
 
         {error && (

@@ -71,6 +71,173 @@
   margin-bottom: 0.25rem;
 }
 
+<<<<<<< Updated upstream
+=======
+/* Route Controls */
+.route-controls {
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 1rem;
+}
+
+.route-controls .route-form h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.route-controls .input-section {
+  margin-bottom: 1rem;
+}
+
+.route-controls .input-group {
+  margin-bottom: 1rem;
+}
+
+.route-controls .input-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.route-controls .input-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-radius: var(--border-radius-md);
+  font-size: 0.875rem;
+}
+
+.route-controls .input-group input::placeholder {
+  color: var(--text-secondary);
+}
+
+.route-controls .input-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.route-controls .input-group input:disabled {
+  background-color: var(--bg-disabled);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.route-controls .error-message {
+  background: var(--bg-error, #fef2f2);
+  color: var(--text-error, #dc2626);
+  padding: 0.75rem;
+  border-radius: var(--border-radius-md);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.route-controls .button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.route-controls .primary-button {
+  background: var(--color-primary);
+  color: var(--text-button-primary, white);
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.route-controls .primary-button:hover:not(:disabled) {
+  background: var(--color-primary-hover, #2563eb);
+}
+
+.route-controls .primary-button:disabled {
+  background: var(--color-disabled, #9ca3af);
+  color: var(--text-disabled, #6b7280);
+  cursor: not-allowed;
+}
+
+.route-controls .secondary-button {
+  background: var(--color-success, #10b981);
+  color: var(--text-button-secondary, white);
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.route-controls .secondary-button:hover:not(:disabled) {
+  background: var(--color-success-hover, #059669);
+}
+
+.route-controls .secondary-button:disabled {
+  background: var(--color-disabled, #9ca3af);
+  color: var(--text-disabled, #6b7280);
+  cursor: not-allowed;
+}
+
+.route-controls .clear-button {
+  background: var(--color-gray, #6b7280);
+  color: var(--text-button-clear, white);
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.route-controls .clear-button:hover:not(:disabled) {
+  background: var(--color-gray-hover, #4b5563);
+}
+
+.route-controls .help-text {
+  background: var(--bg-secondary);
+  padding: 0.75rem;
+  border-radius: var(--border-radius-md);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.route-controls .help-text p {
+  margin: 0 0 0.25rem 0;
+}
+
+.route-controls .help-text p:last-child {
+  margin-bottom: 0;
+}
+
+.route-controls .loading-spinner.small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+>>>>>>> Stashed changes
 .map-sidebar {
   width: 20rem;
   background-color: white;
