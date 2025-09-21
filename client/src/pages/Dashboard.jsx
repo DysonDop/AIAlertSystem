@@ -3,9 +3,11 @@ import { AlertTriangle, MapPin, Clock, TrendingUp, Twitter, CheckCircle, XCircle
 import AlertCard from '../components/alerts/AlertCard.jsx';
 import DisasterMap from '../components/maps/DisasterMap.jsx';
 import { alertService } from '../services/api.js';
+import { useTheme } from '../contexts/ThemeContext.jsx';
 import '../styles/pages/dashboard.css';
 
 const Dashboard = () => {
+  const { isDark } = useTheme();
   const [alerts, setAlerts] = useState([]);
   const [socialMediaStats, setSocialMediaStats] = useState({});
   const [loading, setLoading] = useState(true);
@@ -99,7 +101,19 @@ const Dashboard = () => {
       <div className="dashboard-container">
         {/* Header */}
         <div className="dashboard-header">
-          <h1 className="dashboard-title">🤖 AI Disaster Alert Dashboard</h1>
+          <h1 className="dashboard-title">
+            <img 
+              src={isDark ? "/logo-alert-light.svg" : "/logo-alert.svg"} 
+              alt="Alert Logo" 
+              style={{ 
+                width: '42px', 
+                height: '42px', 
+                marginRight: '9px', 
+                verticalAlign: 'middle' 
+              }} 
+            />
+            AI Disaster Alert Dashboard
+          </h1>
           <p className="dashboard-subtitle">
             Real-time social media monitoring with AI-driven disaster validation
           </p>
@@ -153,7 +167,19 @@ const Dashboard = () => {
           {/* Map Section */}
           <div className="content-card">
             <div className="content-card-header">
-              <h2 className="content-card-title">🌍 Live Validation Map</h2>
+              <h2 className="content-card-title" style={{ display: 'flex', alignItems: 'center' }}>
+                <img 
+                  src={isDark ? "/map-light.svg" : "/map.svg"} 
+                  alt="Map Icon" 
+                  style={{ 
+                    width: '20px', 
+                    height: '20px', 
+                    marginRight: '8px', 
+                    flexShrink: 0
+                  }} 
+                />
+                Live Validation Map
+              </h2>
               <div className="alert-count">
                 <MapPin />
                 <span>{alerts.length} validated incidents</span>
@@ -170,7 +196,19 @@ const Dashboard = () => {
           {/* Recent Validated Alerts */}
           <div className="content-card">
             <div className="content-card-header">
-              <h2 className="content-card-title">🔍 Recently Validated Alerts</h2>
+              <h2 className="content-card-title" style={{ display: 'flex', alignItems: 'center' }}>
+                <img 
+                  src={isDark ? "/magnifying-glass-light.svg" : "/magnifying-glass.svg"} 
+                  alt="Search Icon" 
+                  style={{ 
+                    width: '20px', 
+                    height: '20px', 
+                    marginRight: '8px', 
+                    flexShrink: 0
+                  }} 
+                />
+                Recently Validated Alerts
+              </h2>
               <button className="view-all-btn">
                 View All
               </button>
@@ -254,28 +292,6 @@ const Dashboard = () => {
                 <span className="progress-label">Validation Accuracy</span>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="content-card quick-actions">
-          <h2 className="content-card-title">⚡ Quick Actions</h2>
-          <div className="quick-actions-grid">
-            <button className="quick-action-btn">
-              <Twitter className="quick-action-icon blue" />
-              <h3 className="quick-action-title">Social Monitor</h3>
-              <p className="quick-action-desc">View live social media feeds</p>
-            </button>
-            <button className="quick-action-btn">
-              <BarChart3 className="quick-action-icon green" />
-              <h3 className="quick-action-title">Validation Analytics</h3>
-              <p className="quick-action-desc">Detailed accuracy metrics</p>
-            </button>
-            <button className="quick-action-btn">
-              <MapPin className="quick-action-icon orange" />
-              <h3 className="quick-action-title">Alert Map</h3>
-              <p className="quick-action-desc">Full interactive map view</p>
-            </button>
           </div>
         </div>
       </div>
