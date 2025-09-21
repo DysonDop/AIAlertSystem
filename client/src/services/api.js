@@ -20,76 +20,147 @@ const mapsApi = axios.create({
 // Alert Services
 export const alertService = {
   /**
-   * Get all alerts with optional filters
+   * Get all alerts with optional filters (client-side filtering applied)
    * @param {import('../types/index.js').SearchFilters} [filters] - Filter criteria
    * @returns {Promise<import('../types/index.js').Alert[]>} Array of alerts
    */
   async getAlerts(filters) {
-    const response = await api.get('/alerts', { params: filters });
-    return response.data;
+    const response = await api.get('/getalerts');
+    let alerts = response.data;
+
+    // Apply client-side filtering if filters are provided
+    if (filters) {
+      if (filters.type) {
+        alerts = alerts.filter(alert => alert.type === filters.type);
+      }
+      if (filters.severity) {
+        alerts = alerts.filter(alert => alert.severity === filters.severity);
+      }
+      if (filters.status) {
+        alerts = alerts.filter(alert => alert.status === filters.status);
+      }
+      if (filters.location) {
+        alerts = alerts.filter(alert => 
+          alert.location && alert.location.toLowerCase().includes(filters.location.toLowerCase())
+        );
+      }
+    }
+
+    return alerts;
   },
 
   /**
-   * Get a specific alert by ID
+   * Get a specific alert by ID (client-side filtering from all alerts)
    * @param {string} id - Alert ID
    * @returns {Promise<import('../types/index.js').Alert>} Alert object
    */
   async getAlert(id) {
-    const response = await api.get(`/alerts/${id}`);
-    return response.data;
+    const response = await api.get('/getalerts');
+    const alerts = response.data;
+    const alert = alerts.find(alert => alert.id === id);
+    
+    if (!alert) {
+      throw new Error(`Alert with ID ${id} not found`);
+    }
+    
+    return alert;
   },
 
   /**
-   * Create a new alert
+   * Create a new alert using the ingest endpoint
    * @param {Omit<import('../types/index.js').Alert, 'id' | 'timestamp'>} alert - Alert data without ID and timestamp
    * @returns {Promise<import('../types/index.js').Alert>} Created alert
    */
   async createAlert(alert) {
-    const response = await api.post('/alerts', alert);
+    const response = await api.post('/ingest', alert);
     return response.data;
   },
 
   /**
-   * Update an existing alert
+   * Validate alert data
+   * @param {Omit<import('../types/index.js').Alert, 'id' | 'timestamp'>} alert - Alert data to validate
+   * @returns {Promise<{valid: boolean, errors?: string[]}>} Validation result
+   */
+  async validateAlert(alert) {
+    const response = await api.post('/validate', alert);
+    return response.data;
+  },
+
+  /**
+   * Update an existing alert (DISABLED - not supported by backend)
    * @param {string} id - Alert ID
    * @param {Partial<import('../types/index.js').Alert>} updates - Updates to apply
    * @returns {Promise<import('../types/index.js').Alert>} Updated alert
    */
   async updateAlert(id, updates) {
-    const response = await api.patch(`/alerts/${id}`, updates);
-    return response.data;
+    throw new Error('Alert updates are not currently supported by the backend');
   },
 
   /**
-   * Delete an alert
+   * Delete an alert (DISABLED - not supported by backend)
    * @param {string} id - Alert ID
    * @returns {Promise<void>}
    */
   async deleteAlert(id) {
-    await api.delete(`/alerts/${id}`);
+    throw new Error('Alert deletion is not currently supported by the backend');
   },
 
   /**
-   * Get all active alerts
+   * Get all active alerts (client-side filtering from all alerts)
    * @returns {Promise<import('../types/index.js').Alert[]>} Array of active alerts
    */
   async getActiveAlerts() {
-    const response = await api.get('/alerts/active');
-    return response.data;
+    const response = await api.get('/getalerts');
+    const alerts = response.data;
+    
+    // Filter for active alerts (assuming status 'active' or similar)
+    return alerts.filter(alert => 
+      alert.status === 'active' || 
+      alert.status === 'ongoing' || 
+      (!alert.status && alert.severity !== 'resolved')
+    );
   },
 
   /**
-   * Get alerts near a location
+   * Get alerts near a location (client-side filtering until backend support is added)
    * @param {number} lat - Latitude
    * @param {number} lng - Longitude
    * @param {number} [radius=10] - Search radius in kilometers
    * @returns {Promise<import('../types/index.js').Alert[]>} Array of nearby alerts
    */
   async getNearbyAlerts(lat, lng, radius = 10) {
-    const response = await api.get('/alerts/nearby', {
-      params: { lat, lng, radius },
+    const response = await api.get('/getalerts');
+    const alerts = response.data;
+    
+    // Simple client-side distance filtering
+    // Note: This is a basic implementation. For production, consider using a proper geospatial library
+    return alerts.filter(alert => {
+      if (!alert.latitude || !alert.longitude) return false;
+      
+      const distance = this._calculateDistance(lat, lng, alert.latitude, alert.longitude);
+      return distance <= radius;
     });
-    return response.data;
+  },
+
+  /**
+   * Calculate distance between two points using Haversine formula
+   * @private
+   * @param {number} lat1 - First point latitude
+   * @param {number} lng1 - First point longitude
+   * @param {number} lat2 - Second point latitude
+   * @param {number} lng2 - Second point longitude
+   * @returns {number} Distance in kilometers
+   */
+  _calculateDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
   },
 };
 
