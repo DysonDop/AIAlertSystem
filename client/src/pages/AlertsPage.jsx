@@ -26,57 +26,8 @@ const AlertsPage = () => {
         setFilteredAlerts(data);
       } catch (error) {
         console.error('Failed to fetch alerts:', error);
-        // Mock data for development
-        const mockAlerts = [
-          {
-            id: '1',
-            type: 'earthquake',
-            severity: 'high',
-            title: 'Magnitude 6.2 Earthquake',
-            description: 'Strong earthquake detected near downtown area. Buildings may be affected.',
-            location: {
-              lat: 37.7749,
-              lng: -122.4194,
-              address: 'San Francisco, CA',
-              radius: 25,
-            },
-            timestamp: new Date().toISOString(),
-            source: 'meteorological',
-            isActive: true,
-          },
-          {
-            id: '2',
-            type: 'flood',
-            severity: 'critical',
-            title: 'Flash Flood Warning',
-            description: 'Severe flooding expected in low-lying areas due to heavy rainfall.',
-            location: {
-              lat: 37.7849,
-              lng: -122.4094,
-              address: 'Mission District, SF',
-              radius: 15,
-            },
-            timestamp: new Date(Date.now() - 3600000).toISOString(),
-            source: 'twitter',
-            isActive: true,
-          },
-          {
-            id: '3',
-            type: 'fire',
-            severity: 'medium',
-            title: 'Wildfire Alert',
-            description: 'Wildfire spreading in rural areas. Evacuation may be necessary.',
-            location: {
-              lat: 37.7649,
-              lng: -122.4294,
-              address: 'Golden Gate Park, SF',
-              radius: 10,
-            },
-            timestamp: new Date(Date.now() - 7200000).toISOString(),
-            source: 'meteorological',
-            isActive: false,
-          },
-        ];
+        // Mock alerts placeholder - Replace with real data later
+        const mockAlerts = [];
         setAlerts(mockAlerts);
         setFilteredAlerts(mockAlerts);
       } finally {

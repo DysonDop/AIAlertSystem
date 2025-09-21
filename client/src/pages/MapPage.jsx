@@ -21,41 +21,8 @@ const MapPage = () => {
         setAlerts(data);
       } catch (error) {
         console.error('Failed to fetch alerts:', error);
-        // Mock data for development
-        const mockAlerts = [
-          {
-            id: '1',
-            type: 'earthquake',
-            severity: 'high',
-            title: 'Magnitude 6.2 Earthquake',
-            description: 'Strong earthquake detected near downtown area.',
-            location: {
-              lat: 37.7749,
-              lng: -122.4194,
-              address: 'San Francisco, CA',
-              radius: 25,
-            },
-            timestamp: new Date().toISOString(),
-            source: 'meteorological',
-            isActive: true,
-          },
-          {
-            id: '2',
-            type: 'flood',
-            severity: 'critical',
-            title: 'Flash Flood Warning',
-            description: 'Severe flooding in low-lying areas.',
-            location: {
-              lat: 37.7849,
-              lng: -122.4094,
-              address: 'Mission District, SF',
-              radius: 15,
-            },
-            timestamp: new Date().toISOString(),
-            source: 'twitter',
-            isActive: true,
-          },
-        ];
+        // Mock alerts placeholder - Replace with real data later
+        const mockAlerts = [];
         setAlerts(mockAlerts);
       } finally {
         setLoading(false);

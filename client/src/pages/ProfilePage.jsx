@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Calendar, Edit3, Save, X, Camera } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -21,6 +21,28 @@ const ProfilePage = () => {
     // Safe zones
     safeZones: user?.safeZones || []
   });
+
+  // Sync profile data when user object changes
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        name: user?.name || '',
+        email: user?.email || '',
+        phone: user?.phone || '',
+        address: user?.address || '',
+        bio: user?.bio || '',
+        joinedDate: user?.joinedDate || new Date().toISOString().split('T')[0],
+        // Alert preferences
+        alertRadius: user?.alertRadius || 50, // km
+        notificationMethods: user?.notificationMethods || ['push', 'email'],
+        disasterTypes: user?.disasterTypes || ['earthquake', 'flood', 'wildfire', 'storm'],
+        // Emergency contacts
+        emergencyContacts: user?.emergencyContacts || [],
+        // Safe zones
+        safeZones: user?.safeZones || []
+      });
+    }
+  }, [user]); // Re-run whenever user object changes
 
 
 
@@ -346,15 +368,15 @@ const ProfilePage = () => {
               <h3 className="section-title">Activity</h3>
               <div className="profile-stats">
                 <div className="stat-card">
-                  <div className="stat-number">12</div>
+                  <div className="stat-number">-</div>
                   <div className="stat-label">Alerts Received</div>
                 </div>
                 <div className="stat-card">
-                  <div className="stat-number">3</div>
+                  <div className="stat-number">-</div>
                   <div className="stat-label">Emergency Reports</div>
                 </div>
                 <div className="stat-card">
-                  <div className="stat-number">7</div>
+                  <div className="stat-number">-</div>
                   <div className="stat-label">Days Active</div>
                 </div>
               </div>

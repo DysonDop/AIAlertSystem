@@ -26,57 +26,8 @@ const Dashboard = () => {
         // Skip API call for now and use mock data directly
         // const activeAlertsData = await alertService.getActiveAlerts();
         
-        // Mock social media monitoring data for development
-        const mockAlerts = [
-          {
-            id: '1',
-            type: 'flood',
-            severity: 'high',
-            title: 'Flash Flood Alert - Validated',
-            description: 'Confirmed flood warning based on 12 social media reports and meteorological data cross-reference.',
-            location: {
-              lat: 3.139,
-              lng: 101.6869,
-              address: 'Kuala Lumpur, MY',
-              radius: 15,
-            },
-            timestamp: new Date().toISOString(),
-            source: 'social_media_validated',
-            isActive: true,
-            validationStatus: 'verified',
-            socialMediaSources: 12,
-            meteorologicalConfirmation: true,
-            recommendations: [
-              'Avoid low-lying areas immediately',
-              'Monitor official channels for updates',
-              'Prepare emergency evacuation if needed',
-            ],
-          },
-          {
-            id: '2',
-            type: 'earthquake',
-            severity: 'medium',
-            title: 'Earthquake Alert - Under Review',
-            description: 'Seismic activity reports from social media being validated with seismological data.',
-            location: {
-              lat: 3.1319,
-              lng: 101.6841,
-              address: 'Downtown KL, MY',
-              radius: 10,
-            },
-            timestamp: new Date(Date.now() - 900000).toISOString(),
-            source: 'social_media_pending',
-            isActive: true,
-            validationStatus: 'pending',
-            socialMediaSources: 8,
-            meteorologicalConfirmation: false,
-            recommendations: [
-              'Monitor for official seismic confirmations',
-              'Stay alert for building damage reports',
-              'Prepare for potential aftershocks',
-            ],
-          },
-        ];
+        // Mock alerts placeholder - Replace with real data later
+        const mockAlerts = [];
         
         setAlerts(mockAlerts);
         

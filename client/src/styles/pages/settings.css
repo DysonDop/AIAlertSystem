@@ -234,7 +234,7 @@
 .setting-control {
   flex: 0 0 auto;
   min-width: 100px;
-  max-width: 120px;
+  max-width: 160px; /* Increased from 120px to 160px for longer dropdown */
 }
 
 .setting-control .form-select {

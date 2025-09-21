@@ -19,102 +19,12 @@ const SearchPage = () => {
         const alertsData = await alertService.getActiveAlerts();
         setAlerts(alertsData || []);
         
-        // Mock social media monitoring data for development
-        const mockTweets = [
-          {
-            id: '1',
-            author: {
-              name: 'WeatherAlert_MY',
-              handle: 'weatheralert_my',
-              avatar: '/api/placeholder/32/32'
-            },
-            content: 'URGENT: Flash flood warning issued for Kuala Lumpur area. Heavy rainfall expected in next 2 hours. Avoid low-lying areas! #FlashFlood #KL',
-            timestamp: '2 minutes ago',
-            validationStatus: 'verified',
-            location: 'Kuala Lumpur',
-            relevanceScore: 95,
-            disasterTypes: ['flood'],
-            media: [
-              { url: '/api/placeholder/300/200', type: 'image' }
-            ],
-            keywords: ['flood', 'rainfall', 'warning']
-          },
-          {
-            id: '2',
-            author: {
-              name: 'CitizenReporter',
-              handle: 'citizen_news',
-              avatar: '/api/placeholder/32/32'
-            },
-            content: 'Water level rising rapidly near my house in Taman Desa. Cars starting to get stuck. Need assistance! #Flood #Emergency',
-            timestamp: '5 minutes ago',
-            validationStatus: 'pending',
-            location: 'Taman Desa, KL',
-            relevanceScore: 88,
-            disasterTypes: ['flood'],
-            media: [
-              { url: '/api/placeholder/300/200', type: 'image' }
-            ],
-            keywords: ['flood', 'water', 'emergency']
-          },
-          {
-            id: '3',
-            author: {
-              name: 'JohnDoe',
-              handle: 'johndoe123',
-              avatar: '/api/placeholder/32/32'
-            },
-            content: 'Major earthquake just hit downtown! Buildings shaking, people running to streets. Stay safe everyone! #earthquake #emergency',
-            timestamp: '15 minutes ago',
-            validationStatus: 'verified',
-            location: 'Downtown KL',
-            relevanceScore: 92,
-            disasterTypes: ['earthquake'],
-            media: [],
-            keywords: ['earthquake', 'emergency', 'downtown']
-          },
-          {
-            id: '4',
-            author: {
-              name: 'LocalNews_KL',
-              handle: 'localnews_kl',
-              avatar: '/api/placeholder/32/32'
-            },
-            content: 'Wildfire smoke visible from city center. Air quality deteriorating. Health advisory issued - stay indoors. #wildfire #airquality',
-            timestamp: '30 minutes ago',
-            validationStatus: 'conflicting',
-            location: 'Kuala Lumpur',
-            relevanceScore: 75,
-            disasterTypes: ['wildfire'],
-            media: [
-              { url: '/api/placeholder/300/200', type: 'image' }
-            ],
-            keywords: ['wildfire', 'smoke', 'air quality']
-          }
-        ];
+        // Mock social media placeholder - Replace with real data later
+        const mockTweets = [];
         setTweets(mockTweets);
 
-        // Mock validated alerts
-        const mockAlerts = [
-          {
-            id: 1,
-            title: 'Flash Flood Alert - Kuala Lumpur',
-            description: 'Official flood warning confirmed by meteorological data and cross-referenced with social media reports',
-            severity: 'high',
-            location: 'Kuala Lumpur Metropolitan Area',
-            timestamp: '1 minute ago',
-            sources: 12
-          },
-          {
-            id: 2,
-            title: 'Earthquake Alert - Downtown KL',
-            description: 'Seismic activity detected and verified through multiple social media reports',
-            severity: 'medium',
-            location: 'Downtown Kuala Lumpur',
-            timestamp: '10 minutes ago',
-            sources: 8
-          }
-        ];
+        // Mock alerts placeholder - Replace with real data later
+        const mockAlerts = [];
         setAlerts(mockAlerts);
       } catch (error) {
         console.error('Failed to fetch data:', error);

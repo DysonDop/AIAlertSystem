@@ -23,6 +23,7 @@
   --color-primary: var(--palette-coral);
   --color-primary-hover: var(--palette-coral-hover);
   --color-primary-light: var(--palette-coral-light);
+  --color-primary-rgb: 238, 108, 77; /* RGB values for --palette-coral */
   
   --color-secondary: var(--palette-deep-blue);
   --color-secondary-hover: var(--palette-deep-blue-hover);
@@ -69,6 +70,7 @@ body[data-theme="dark"],
   --color-primary-dark: var(--palette-coral);
   --color-primary-hover-dark: var(--palette-coral-hover);
   --color-primary-light-dark: rgba(238, 108, 77, 0.2);
+  --color-primary-rgb: 238, 108, 77; /* RGB values for --palette-coral */
   
   --color-secondary-dark: var(--palette-light-blue);
   --color-secondary-hover-dark: var(--palette-light-blue-hover);

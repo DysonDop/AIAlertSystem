@@ -101,8 +101,8 @@ const Homepage = () => {
               <div className="hero-card-content">
                 <AlertTriangle className="hero-card-icon" />
                 <div>
-                  <h3>2 Active Alerts</h3>
-                  <p>Earthquake warning • Flood advisory</p>
+                  <h3>- Active Alerts</h3>
+                  <p>System monitoring 24/7</p>
                 </div>
               </div>
             </div>
@@ -142,15 +142,15 @@ const Homepage = () => {
               <p className="stat-label">Monitoring</p>
             </div>
             <div className="stat-item">
-              <h3 className="stat-number">50+</h3>
+              <h3 className="stat-number">-</h3>
               <p className="stat-label">Alert Types</p>
             </div>
             <div className="stat-item">
-              <h3 className="stat-number">10k+</h3>
+              <h3 className="stat-number">-</h3>
               <p className="stat-label">Users Protected</p>
             </div>
             <div className="stat-item">
-              <h3 className="stat-number">99.9%</h3>
+              <h3 className="stat-number">-</h3>
               <p className="stat-label">Uptime</p>
             </div>
           </div>
