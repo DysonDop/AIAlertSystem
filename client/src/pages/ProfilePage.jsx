@@ -11,8 +11,18 @@ const ProfilePage = () => {
     phone: user?.phone || '',
     location: user?.location || '',
     bio: user?.bio || '',
-    joinedDate: user?.joinedDate || new Date().toISOString().split('T')[0]
+    joinedDate: user?.joinedDate || new Date().toISOString().split('T')[0],
+    // Alert preferences
+    alertRadius: user?.alertRadius || 50, // km
+    notificationMethods: user?.notificationMethods || ['push', 'email'],
+    disasterTypes: user?.disasterTypes || ['earthquake', 'flood', 'wildfire', 'storm'],
+    // Emergency contacts
+    emergencyContacts: user?.emergencyContacts || [],
+    // Safe zones
+    safeZones: user?.safeZones || []
   });
+
+
 
   const handleInputChange = (field, value) => {
     setProfileData(prev => ({
@@ -23,10 +33,22 @@ const ProfilePage = () => {
 
   const handleSave = async () => {
     try {
-      await updateProfile(profileData);
+      const result = await updateProfile(profileData);
       setIsEditing(false);
+      
+      // Log for developers only - no user popups
+      if (result.cognitoSuccess) {
+        console.log('Profile updated and synced to cloud successfully');
+      } else {
+        console.warn('Profile updated locally, cloud sync failed:', result.cognitoError);
+      }
     } catch (error) {
+      // Log technical details for developers
       console.error('Failed to update profile:', error);
+      console.error('Error details:', error.message, error.stack);
+      
+      // Still exit edit mode - user doesn't need to know about the error
+      setIsEditing(false);
     }
   };
 
@@ -37,7 +59,12 @@ const ProfilePage = () => {
       phone: user?.phone || '',
       location: user?.location || '',
       bio: user?.bio || '',
-      joinedDate: user?.joinedDate || new Date().toISOString().split('T')[0]
+      joinedDate: user?.joinedDate || new Date().toISOString().split('T')[0],
+      alertRadius: user?.alertRadius || 50,
+      notificationMethods: user?.notificationMethods || ['push', 'email'],
+      disasterTypes: user?.disasterTypes || ['earthquake', 'flood', 'wildfire', 'storm'],
+      emergencyContacts: user?.emergencyContacts || [],
+      safeZones: user?.safeZones || []
     });
     setIsEditing(false);
   };
@@ -198,6 +225,100 @@ const ProfilePage = () => {
                     rows={4}
                   />
                 )}
+              </div>
+            </div>
+
+            {/* Alert Preferences Section */}
+            <div className="profile-section">
+              <h3 className="section-title">Alert Preferences</h3>
+              <div className="profile-fields">
+                
+                <div className="profile-field">
+                  <div className="field-icon">
+                    🚨
+                  </div>
+                  <div className="field-content">
+                    <label className="field-label">Alert Radius (km)</label>
+                    {!isEditing ? (
+                      <p className="field-value">{profileData.alertRadius} km</p>
+                    ) : (
+                      <input
+                        type="number"
+                        className="profile-input"
+                        value={profileData.alertRadius}
+                        onChange={(e) => handleInputChange('alertRadius', parseInt(e.target.value))}
+                        placeholder="Alert radius in kilometers"
+                        min="1"
+                        max="500"
+                      />
+                    )}
+                  </div>
+                </div>
+
+                <div className="profile-field">
+                  <div className="field-icon">
+                    📱
+                  </div>
+                  <div className="field-content">
+                    <label className="field-label">Notification Methods</label>
+                    {!isEditing ? (
+                      <p className="field-value">
+                        {profileData.notificationMethods.join(', ') || 'None selected'}
+                      </p>
+                    ) : (
+                      <div className="checkbox-group">
+                        {['push', 'email', 'sms'].map(method => (
+                          <label key={method} className="checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={profileData.notificationMethods.includes(method)}
+                              onChange={(e) => {
+                                const methods = e.target.checked 
+                                  ? [...profileData.notificationMethods, method]
+                                  : profileData.notificationMethods.filter(m => m !== method);
+                                handleInputChange('notificationMethods', methods);
+                              }}
+                            />
+                            {method.charAt(0).toUpperCase() + method.slice(1)}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="profile-field">
+                  <div className="field-icon">
+                    🌪️
+                  </div>
+                  <div className="field-content">
+                    <label className="field-label">Alert Types</label>
+                    {!isEditing ? (
+                      <p className="field-value">
+                        {profileData.disasterTypes.join(', ') || 'None selected'}
+                      </p>
+                    ) : (
+                      <div className="checkbox-group">
+                        {['earthquake', 'flood', 'wildfire', 'storm', 'tsunami', 'tornado'].map(disaster => (
+                          <label key={disaster} className="checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={profileData.disasterTypes.includes(disaster)}
+                              onChange={(e) => {
+                                const types = e.target.checked 
+                                  ? [...profileData.disasterTypes, disaster]
+                                  : profileData.disasterTypes.filter(t => t !== disaster);
+                                handleInputChange('disasterTypes', types);
+                              }}
+                            />
+                            {disaster.charAt(0).toUpperCase() + disaster.slice(1)}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
               </div>
             </div>
 
