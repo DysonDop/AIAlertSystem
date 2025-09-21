@@ -126,7 +126,7 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
   return (
     <div className="route-controls">
       <div className="route-form">
-        <h3>🚨 Emergency Route Planning</h3>
+        <h3>Emergency Route Planning</h3>
         
         <div className="input-section">
           <div className="input-group">
@@ -171,7 +171,7 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
                 Planning...
               </>
             ) : (
-              '🚨 Plan Evacuation Route'
+              'Plan Evacuation Route'
             )}
           </button>
 
@@ -186,7 +186,7 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
                 Searching...
               </>
             ) : (
-              '🏥 Find Emergency Shelters'
+              'Find Emergency Shelters'
             )}
           </button>
 
@@ -195,7 +195,7 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
             disabled={isGenerating}
             className="clear-button"
           >
-            🔄 Reset Map
+            Reset Map
           </button>
         </div>
 

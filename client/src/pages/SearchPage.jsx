@@ -131,7 +131,7 @@ const SearchPage = () => {
       <div className="container">
         {/* Header */}
         <div className="page-header">
-          <h1 className="page-title">🐦 Social Media Monitor</h1>
+          <h1 className="page-title">Social Media Monitor</h1>
           <p className="page-subtitle">
             Monitor social media for disaster-related posts and cross-reference with official data
           </p>

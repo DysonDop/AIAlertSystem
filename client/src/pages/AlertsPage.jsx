@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, MapPin, Clock } from 'lucide-react';
+import { Search, Filter, MapPin, Clock, Bell } from 'lucide-react';
 import AlertCard from '../components/alerts/AlertCard.jsx';
 import Navigation from '../components/layout/Navigation.jsx';
+import MapReport from '../components/maps/MapReport.jsx';
 import { alertService, searchService } from '../services/api.js';
 import '../styles/pages/alerts.css';
 
-// Manual Alerts Component
-function AlertsList() {
+// AWS Manual Alerts Component
+function ManualAlertsComponent() {
   const [alerts, setAlerts] = useState([]);
 
   useEffect(() => {
@@ -23,14 +24,13 @@ function AlertsList() {
   }, []);
 
   return (
-    <div className="manual-alerts-section">
-      <h3>Manual Alerts</h3>
-      <div className="manual-alerts-list">
+    <div className="aws-manual-alerts">
+      <div className="aws-alerts-list">
         {alerts.length === 0 ? (
           <p>No manual alerts available</p>
         ) : (
           alerts.map(a => (
-            <div key={a.id} className="manual-alert-item">
+            <div key={a.id} className="aws-alert-item">
               <span className={`alert-type ${a.severity?.toLowerCase()}`}>{a.type}</span>
               <span className="alert-severity">{a.severity}</span>
               <span className="alert-description">{a.description}</span>
@@ -277,7 +277,34 @@ const AlertsPage = () => {
         )}
 
         {/* Manual Alerts Section */}
-        <AlertsList />
+        <div className="manual-alerts-section">
+          <h2>
+            <Bell size={20} />
+            Manual Alerts
+          </h2>
+          <ManualAlertsComponent />
+        </div>
+
+        {/* Submit Alert Section */}
+        <div className="submit-alert-section" style={{
+          marginTop: '2rem',
+          padding: '1.5rem',
+          backgroundColor: 'var(--color-background-secondary)',
+          borderRadius: '8px',
+          border: '1px solid var(--color-border)'
+        }}>
+          <h2 style={{
+            color: 'var(--color-text-primary)',
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <MapPin size={20} />
+            Submit New Alert
+          </h2>
+          <MapReport />
+        </div>
       </div>
     </div>
   );

@@ -81,18 +81,25 @@ const DisasterMap = ({
 
     const google = googleMapsServiceRef.current.google;
     
+    // Check if visualization library is loaded
+    if (!google.maps.visualization || !google.maps.visualization.HeatmapLayer) {
+      console.warn('Google Maps Visualization library not loaded');
+      return;
+    }
+    
     // Convert rainfall points to heatmap data
     const heatmapData = rainfallPoints.map(point => ({
       location: new google.maps.LatLng(point.lat, point.lng),
       weight: point.intensity
     }));
 
-    // Create heatmap layer
-    heatmapLayerRef.current = new google.maps.visualization.HeatmapLayer({
-      data: heatmapData,
-      map: showRainfallHeatmap ? mapInstanceRef.current : null,
-      radius: 30,
-      maxIntensity: 1.0,
+    try {
+      // Create heatmap layer
+      heatmapLayerRef.current = new google.maps.visualization.HeatmapLayer({
+        data: heatmapData,
+        map: showRainfallHeatmap ? mapInstanceRef.current : null,
+        radius: 30,
+        maxIntensity: 1.0,
       gradient: [
         'rgba(0, 255, 255, 0)',    // transparent
         'rgba(0, 255, 255, 1)',    // cyan (light rain)
@@ -109,7 +116,10 @@ const DisasterMap = ({
         'rgba(255, 191, 0, 1)',    // yellow-orange
         'rgba(255, 255, 0, 1)'     // yellow (moderate)
       ]
-    });
+      });
+    } catch (error) {
+      console.error('Error creating heatmap layer:', error);
+    }
   };
 
   // Toggle rainfall heatmap

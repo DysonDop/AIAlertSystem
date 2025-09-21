@@ -17,8 +17,8 @@ class GoogleMapsService {
     const loader = new Loader({
       apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
       version: "weekly",
-      libraries: ["places"],
-      mapIds: [import.meta.env.VITE_GOOGLE_MAPS_ID],
+      libraries: ["places", "visualization"],
+      ...(import.meta.env.VITE_GOOGLE_MAPS_ID && { mapIds: [import.meta.env.VITE_GOOGLE_MAPS_ID] }),
     });
 
     await loader.load();
@@ -35,7 +35,7 @@ class GoogleMapsService {
     const defaultOptions = {
       center: { lat: 0, lng: 0 },
       zoom: 10,
-      mapId: import.meta.env.VITE_GOOGLE_MAPS_ID,
+      ...(import.meta.env.VITE_GOOGLE_MAPS_ID && { mapId: import.meta.env.VITE_GOOGLE_MAPS_ID }),
       ...options
     };
 
