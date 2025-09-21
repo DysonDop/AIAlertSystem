@@ -12,16 +12,45 @@ class GoogleMapsService {
     this.isLoaded = false;
   }
 
+  async fetchMapsConfig() {
+    if (this.mapsConfig) return this.mapsConfig;
+
+    try {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiBaseUrl}/api/maps/config`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch maps configuration');
+      }
+      
+      this.mapsConfig = await response.json();
+      return this.mapsConfig;
+    } catch (error) {
+      console.error('Error fetching maps config:', error);
+      throw new Error('Unable to load Google Maps configuration. Please ensure the backend is running and configured properly.');
+    }
+  }
+
   async loadGoogleMaps() {
     if (this.isLoaded) return this.google;
 
+    const config = await this.fetchMapsConfig();
+
     const loader = new Loader({
-      apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-      version: 'weekly',
-      libraries: ['places', 'geometry']
+      apiKey: config.apiKey,
+      version: config.version || 'weekly',
+      libraries: config.libraries || ['marker', 'places', 'geometry']
     });
 
     this.google = await loader.load();
+    
+    // Import the AdvancedMarkerElement specifically
+    try {
+      await this.google.maps.importLibrary('marker');
+    } catch (error) {
+      console.warn('Could not import marker library:', error);
+    }
+    
     this.isLoaded = true;
     return this.google;
   }
@@ -29,10 +58,14 @@ class GoogleMapsService {
   async initializeMap(container, options = {}) {
     await this.loadGoogleMaps();
     
+    // Get configuration including Map ID
+    const config = await this.fetchMapsConfig();
+    
     const defaultOptions = {
-      center: { lat: 37.7749, lng: -122.4194 }, // San Francisco
+      center: { lat: 3.1390, lng: 101.6869 }, // Kuala Lumpur
       zoom: 12,
       mapTypeId: this.google.maps.MapTypeId.ROADMAP,
+      mapId: config.mapId, // Use Map ID from backend
       ...options
     };
 
@@ -47,7 +80,8 @@ class GoogleMapsService {
       }
     });
     this.directionsRenderer.setMap(this.map);
-    this.placesService = new this.google.maps.places.PlacesService(this.map);
+    // Note: PlacesService has been deprecated for new customers
+    // Use google.maps.places.Place API instead if needed
 
     return this.map;
   }
@@ -60,6 +94,15 @@ class GoogleMapsService {
   clearPolylines() {
     this.polylines.forEach(polyline => polyline.setMap(null));
     this.polylines = [];
+  }
+
+  setCenter(center, zoom) {
+    if (this.map) {
+      this.map.setCenter(center);
+      if (zoom) {
+        this.map.setZoom(zoom);
+      }
+    }
   }
 
   addMarker(position, options = {}) {

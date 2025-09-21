@@ -1,20 +1,65 @@
 import React, { useState, useEffect, useRef } from 'react';
 import GoogleMapsService from '../../services/googleMapsService.js';
+import '../../styles/components/map.css';
 
 const DisasterMap = ({ 
   alerts = [], 
   routes = [], 
   safeZones = [], 
   onAlertClick, 
-  center = { lat: 37.7749, lng: -122.4194 }, 
+  defaultCenter = { lat: 3.1390, lng: 101.6869 }, // Fallback: Kuala Lumpur
   zoom = 12 
 }) => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const [showLocationNotification, setShowLocationNotification] = useState(false);
   const mapRef = useRef();
   const googleMapsServiceRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+
+  // Create user location marker element
+  const createUserMarkerElement = () => {
+    const element = document.createElement('div');
+    element.style.cssText = `
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: #4285F4;
+      border: 3px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      position: relative;
+    `;
+    
+    // Add pulsing animation with CSS
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.7; }
+        50% { transform: scale(1.2); opacity: 0.3; }
+        100% { transform: scale(1); opacity: 0.7; }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    const pulse = document.createElement('div');
+    pulse.style.cssText = `
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background-color: #4285F4;
+      opacity: 0.3;
+      position: absolute;
+      top: -6px;
+      left: -6px;
+      animation: pulse 2s infinite;
+    `;
+    
+    element.appendChild(pulse);
+    return element;
+  };
 
   useEffect(() => {
     const initializeMap = async () => {
@@ -22,20 +67,70 @@ const DisasterMap = ({
         setIsLoading(true);
         setError(null);
 
-        // Check if Google Maps API key is available
-        if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
-          throw new Error('Google Maps API key not found. Please check your environment variables.');
-        }
-
-        // Initialize Google Maps service
+        // Initialize Google Maps service (API key fetched from backend)
         googleMapsServiceRef.current = new GoogleMapsService();
         
-        // Initialize the map
-        await googleMapsServiceRef.current.initializeMap(mapRef.current, {
+        // Get user location first, fallback to default
+        const getUserLocation = () => {
+          return new Promise((resolve) => {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  const userPos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                  };
+                  setUserLocation(userPos);
+                  // Show notification temporarily
+                  setShowLocationNotification(true);
+                  setTimeout(() => setShowLocationNotification(false), 3000); // Hide after 3 seconds
+                  resolve(userPos);
+                },
+                (error) => {
+                  let errorMessage = 'Location unavailable';
+                  switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                      errorMessage = 'Location access denied by user. Using default location.';
+                      break;
+                    case error.POSITION_UNAVAILABLE:
+                      errorMessage = 'Location information unavailable. Using default location.';
+                      break;
+                    case error.TIMEOUT:
+                      errorMessage = 'Location request timed out. Using default location.';
+                      break;
+                  }
+                  console.warn(errorMessage, error);
+                  resolve(defaultCenter);
+                },
+                {
+                  enableHighAccuracy: false, // Less accurate but faster
+                  timeout: 5000, // Reduced to 5 seconds
+                  maximumAge: 60000 // 1 minute cache
+                }
+              );
+            } else {
+              console.warn('Geolocation not supported');
+              resolve(defaultCenter);
+            }
+          });
+        };
+
+        const center = await getUserLocation();
+        
+        // Initialize the map with Map ID and user location
+        mapInstanceRef.current = await googleMapsServiceRef.current.initializeMap(mapRef.current, {
           center,
           zoom,
           mapTypeId: 'roadmap'
         });
+
+        // Add user location marker
+        if (userLocation) {
+          googleMapsServiceRef.current.addMarker(userLocation, {
+            title: 'You are here',
+            content: createUserMarkerElement()
+          });
+        }
 
         setIsLoading(false);
       } catch (err) {
@@ -59,11 +154,19 @@ const DisasterMap = ({
   }, []);
 
   useEffect(() => {
-    if (!googleMapsServiceRef.current || isLoading) return;
+    if (!googleMapsServiceRef.current || isLoading || !mapInstanceRef.current) return;
 
     // Clear existing markers and polylines
     googleMapsServiceRef.current.clearMarkers();
     googleMapsServiceRef.current.clearPolylines();
+
+    // Re-add user location marker if available
+    if (userLocation) {
+      googleMapsServiceRef.current.addMarker(userLocation, {
+        title: 'You are here',
+        content: createUserMarkerElement()
+      });
+    }
 
     // Add alert markers
     alerts.forEach(alert => {
@@ -87,14 +190,35 @@ const DisasterMap = ({
       const destination = { lat: routes[0].legs[0].endLocation.lat, lng: routes[0].legs[0].endLocation.lng };
       googleMapsServiceRef.current.displayRoutes(routes, origin, destination);
     }
-  }, [alerts, routes, safeZones, onAlertClick, isLoading]);
+
+    // Auto-center on alerts if available
+    if (alerts.length > 0) {
+      const bounds = new googleMapsServiceRef.current.google.maps.LatLngBounds();
+      
+      // Include user location in bounds
+      if (userLocation) {
+        bounds.extend(userLocation);
+      }
+      
+      // Include all alerts in bounds
+      alerts.forEach(alert => {
+        bounds.extend(alert.location);
+      });
+      
+      // Fit map to show all markers
+      mapInstanceRef.current.fitBounds(bounds, {
+        padding: { top: 50, right: 50, bottom: 50, left: 50 }
+      });
+    }
+  }, [alerts, routes, safeZones, onAlertClick, isLoading, userLocation]);
 
   useEffect(() => {
-    if (!googleMapsServiceRef.current || isLoading) return;
+    if (!googleMapsServiceRef.current || isLoading || !mapInstanceRef.current) return;
 
-    // Update map center when center prop changes
-    googleMapsServiceRef.current.setCenter(center, zoom);
-  }, [center, zoom, isLoading]);
+    // Update map center when defaultCenter prop changes (but prefer user location)
+    const centerToUse = userLocation || defaultCenter;
+    googleMapsServiceRef.current.setCenter(centerToUse, zoom);
+  }, [defaultCenter, zoom, isLoading, userLocation]);
 
   if (error) {
     return (
@@ -115,18 +239,47 @@ const DisasterMap = ({
           <div className="loading-spinner">
             <div className="spinner"></div>
             <p>Loading Google Maps...</p>
+            <p style={{ fontSize: '12px', opacity: 0.7 }}>
+              {userLocation ? 'Getting your location...' : 'Using default location...'}
+            </p>
           </div>
         </div>
       )}
       <div
+        id="map"
         ref={mapRef}
         className="map-container"
         style={{ 
-          height: '100%', 
+          height: '500px', 
           width: '100%',
-          display: isLoading ? 'none' : 'block'
+          display: isLoading ? 'none' : 'block',
+          borderRadius: '8px',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
         }}
       />
+      {showLocationNotification && (
+        <div style={{ 
+          position: 'fixed', 
+          top: '20px', 
+          right: '20px', 
+          background: 'white', 
+          color: 'black',
+          padding: '12px 16px', 
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          fontSize: '14px',
+          fontWeight: '500',
+          zIndex: 10000,
+          border: '1px solid #e5e7eb',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          animation: 'slideInRight 0.3s ease-out'
+        }}>
+          <span style={{ fontSize: '16px' }}>📍</span>
+          <span>Your location detected successfully!</span>
+        </div>
+      )}
     </div>
   );
 };

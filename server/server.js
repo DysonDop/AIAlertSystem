@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const apiRoutes = require('./routes/api');
+const mapsRoutes = require('./routes/maps');
 
 // Initialize Express app
 const app = express();
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
 
 // API Routes
 app.use('/', apiRoutes);
+app.use('/api/maps', mapsRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
