@@ -180,6 +180,11 @@ const DisasterMap = ({
 
         const center = await getUserLocation();
         
+        // Ensure the map container exists before initializing
+        if (!mapRef.current) {
+          throw new Error('Map container not found');
+        }
+        
         // Initialize the map with Map ID and user location
         mapInstanceRef.current = await googleMapsServiceRef.current.initializeMap(mapRef.current, {
           center,
@@ -206,12 +211,20 @@ const DisasterMap = ({
       }
     };
 
-    if (mapRef.current) {
-      initializeMap();
-    }
+    // Use a small delay to ensure the DOM element is fully rendered
+    const timer = setTimeout(() => {
+      if (mapRef.current) {
+        initializeMap();
+      } else {
+        console.error('Map container ref is null');
+        setError('Map container not found');
+        setIsLoading(false);
+      }
+    }, 100);
 
     // Cleanup function
     return () => {
+      clearTimeout(timer);
       if (googleMapsServiceRef.current) {
         googleMapsServiceRef.current.clearMarkers();
         googleMapsServiceRef.current.clearPolylines();
