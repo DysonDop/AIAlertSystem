@@ -445,3 +445,163 @@
     padding: 1rem;
   }
 }
+
+/* MapReport Component Styles */
+.map-report-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.map-report-instructions {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-background-tertiary);
+  border-radius: 4px;
+  border-left: 3px solid var(--palette-light-blue);
+}
+
+.map-report-map-container {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+}
+
+.map-report-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.map-report-location-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  min-width: 0;
+  flex: 1;
+}
+
+.map-report-pin-icon {
+  font-size: 1rem;
+}
+
+.map-report-coordinates {
+  font-family: monospace;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.map-report-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.map-report-submit-btn {
+  background: var(--palette-coral);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.map-report-submit-btn:hover:not(:disabled) {
+  background: var(--palette-coral-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.map-report-submit-btn:disabled {
+  background: var(--text-tertiary);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.map-report-clear-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--color-border);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.map-report-clear-btn:hover {
+  background: var(--color-background-secondary);
+  border-color: var(--color-border-hover);
+  color: var(--text-primary);
+}
+
+.map-report-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+  background: var(--color-background-secondary);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .map-report-instructions {
+  background: var(--color-background-secondary);
+  border-left-color: var(--palette-light-blue-hover);
+}
+
+[data-theme="dark"] .map-report-controls {
+  background: var(--color-background-secondary);
+}
+
+[data-theme="dark"] .map-report-map-container {
+  border-color: var(--color-border-hover);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .map-report-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .map-report-location-info {
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .map-report-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .map-report-submit-btn,
+  .map-report-clear-btn {
+    flex: 1;
+    min-width: 120px;
+  }
+}

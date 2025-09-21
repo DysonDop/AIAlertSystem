@@ -7,20 +7,22 @@ import { alertService, searchService } from '../services/api.js';
 import '../styles/pages/alerts.css';
 
 // AWS Manual Alerts Component
-function ManualAlertsComponent() {
+function ManualAlertsComponent({ refreshTrigger }) {
   const [alerts, setAlerts] = useState([]);
 
-  useEffect(() => {
-    async function loadAlerts() {
-      try {
-        const alerts = await alertService.getAlerts({ source: ['manual'] });
-        setAlerts(alerts || []);
-      } catch (error) {
-        console.error('Failed to load manual alerts:', error);
-      }
+  const loadAlerts = async () => {
+    try {
+      const resp = await fetch("https://kj5uk03dk9.execute-api.us-east-1.amazonaws.com/alerts/manual");
+      const data = await resp.json();
+      setAlerts(data.alerts || []);
+    } catch (error) {
+      console.error('Failed to load manual alerts:', error);
     }
+  };
+
+  useEffect(() => {
     loadAlerts();
-  }, []);
+  }, [refreshTrigger]); // Refresh when refreshTrigger changes
 
   return (
     <div className="aws-manual-alerts">
@@ -28,14 +30,43 @@ function ManualAlertsComponent() {
         {alerts.length === 0 ? (
           <p>No manual alerts available</p>
         ) : (
-          alerts.map(a => (
-            <div key={a.id} className="aws-alert-item">
-              <span className={`alert-type ${a.severity?.toLowerCase()}`}>{a.type}</span>
-              <span className="alert-severity">{a.severity}</span>
-              <span className="alert-description">{a.description}</span>
-              <span className="alert-time">{new Date(a.createdAt).toLocaleString()}</span>
+          alerts.map((a, index) => {
+            return (
+              <div 
+                key={a.id || a.SK || index} 
+                className="aws-alert-item"
+                style={{
+                  border: '2px solid red',
+                  padding: '1rem',
+                  margin: '0.5rem 0',
+                  backgroundColor: 'white',
+                  color: 'black'
+                }}
+              >
+                <div style={{marginBottom: '0.5rem'}}>
+                  <span className={`alert-type ${a.severity?.toLowerCase()}`}>
+                    {a.type || 'Alert'}
+                  </span>
+                </div>
+                <div style={{marginBottom: '0.5rem'}}>
+                  <span className="alert-severity">{a.severity || 'HIGH'}</span>
+                </div>
+                <div style={{marginBottom: '0.5rem'}}>
+                  <span className="alert-description">
+                    {a.description || a.title || 'Manual alert reported'}
+                  </span>
+                </div>
+                <div style={{marginBottom: '0.25rem'}}>
+                  <span className="alert-status">Status: {a.status || 'OPEN'}</span>
+                </div>
+                <div>
+                  <span className="alert-time">
+                    {new Date(a.createdAt).toLocaleString()}
+                  </span>
+                </div>
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
@@ -48,11 +79,17 @@ const AlertsPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // Add refresh trigger
   const [filters, setFilters] = useState({
     alertTypes: [],
     severity: [],
     source: [],
   });
+
+  // Function to refresh manual alerts
+  const refreshManualAlerts = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -281,28 +318,30 @@ const AlertsPage = () => {
             <Bell size={20} />
             Manual Alerts
           </h2>
-          <ManualAlertsComponent />
+          <ManualAlertsComponent refreshTrigger={refreshTrigger} />
         </div>
 
         {/* Submit Alert Section */}
         <div className="submit-alert-section" style={{
-          marginTop: '2rem',
-          padding: '1.5rem',
+          marginTop: '1.5rem',
+          padding: '1rem',
           backgroundColor: 'var(--color-background-secondary)',
-          borderRadius: '8px',
+          borderRadius: '6px',
           border: '1px solid var(--color-border)'
         }}>
-          <h2 style={{
+          <h3 style={{
             color: 'var(--color-text-primary)',
-            marginBottom: '1rem',
+            marginBottom: '0.75rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
+            gap: '0.5rem',
+            fontSize: '1rem',
+            fontWeight: '600'
           }}>
-            <MapPin size={20} />
+            <MapPin size={16} />
             Submit New Alert
-          </h2>
-          <MapReport />
+          </h3>
+          <MapReport onAlertSubmitted={refreshManualAlerts} />
         </div>
       </div>
     </div>

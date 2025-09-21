@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.10",
+    "@react-google-maps/api": "^2.20.7",
     "aws-amplify": "^6.0.0",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.12.2",
