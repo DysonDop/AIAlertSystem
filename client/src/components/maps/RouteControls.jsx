@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import '../../styles/components/route-controls.css';
 
 const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -55,7 +56,7 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
     const location = destinationRef.current?.value?.trim();
 
     if (!location) {
-      setError('Please enter a destination to find nearby safe zones');
+      setError('Please enter a location to find nearby emergency shelters');
       return;
     }
 
@@ -99,7 +100,7 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
           }
         }
       } else {
-        throw new Error('No safe zones found in the specified area');
+        throw new Error('No emergency shelters found in the specified area');
       }
     } catch (err) {
       console.error('Error finding safe zones:', err);
@@ -125,7 +126,7 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
   return (
     <div className="route-controls">
       <div className="route-form">
-        <h3>Route Planning</h3>
+        <h3>🚨 Emergency Route Planning</h3>
         
         <div className="input-group">
           <label htmlFor="origin">Origin:</label>
@@ -165,10 +166,10 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
             {isGenerating ? (
               <>
                 <span className="loading-spinner small"></span>
-                Generating...
+                Planning...
               </>
             ) : (
-              'Generate Routes'
+              '🚨 Plan Evacuation Route'
             )}
           </button>
 
@@ -180,10 +181,10 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
             {isGenerating ? (
               <>
                 <span className="loading-spinner small"></span>
-                Finding...
+                Searching...
               </>
             ) : (
-              'Find Safe Zones'
+              '🏥 Find Emergency Shelters'
             )}
           </button>
 
@@ -192,13 +193,13 @@ const RouteControls = ({ onRoutesGenerated, googleMapsService }) => {
             disabled={isGenerating}
             className="clear-button"
           >
-            Clear Map
+            🔄 Reset Map
           </button>
         </div>
 
         <div className="help-text">
-          <p><strong>Tip:</strong> Use specific addresses or landmarks for better results.</p>
-          <p>Safe zones will show nearby hospitals and emergency shelters.</p>
+          <p><strong>Emergency Tip:</strong> Use specific addresses or landmarks for accurate evacuation routes.</p>
+          <p>Emergency shelters will show nearby hospitals, fire stations, and emergency centers.</p>
         </div>
       </div>
     </div>
