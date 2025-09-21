@@ -14,6 +14,7 @@ app.use(cors({
     'http://localhost:3000',
     'http://localhost:5173', // Vite default port
     'http://localhost:8000',
+    'https://main.d1sd3ts8vattr68.amplifyapp.com', // Hosted frontend
     process.env.CLIENT_URL || 'http://localhost:5173'
   ],
   credentials: true,
