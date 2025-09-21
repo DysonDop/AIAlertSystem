@@ -104,7 +104,7 @@ const DisasterMap = ({
                 },
                 {
                   enableHighAccuracy: false, // Less accurate but faster
-                  timeout: 5000, // Reduced to 5 seconds
+                  timeout: 10000, // Reduced to 5 seconds
                   maximumAge: 60000 // 1 minute cache
                 }
               );
