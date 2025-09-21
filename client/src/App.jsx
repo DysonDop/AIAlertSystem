@@ -7,6 +7,8 @@ import Layout from './components/layout/Layout.jsx';
 import Homepage from './pages/Homepage.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
+import ForgotPassword from './pages/ForgotPassword.jsx';
+import ResetPassword from './pages/ResetPassword.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import AlertsPage from './pages/AlertsPage.jsx';
 import MapPage from './pages/MapPage.jsx';
@@ -24,6 +26,8 @@ function App() {
             <Route path="/" element={<Homepage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             
             {/* Protected Routes */}
             <Route path="/app" element={

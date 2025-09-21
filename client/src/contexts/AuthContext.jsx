@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { signIn, signUp, signOut, getCurrentUser, confirmSignUp, resendSignUpCode } from 'aws-amplify/auth';
+import { signIn, signUp, signOut, getCurrentUser, confirmSignUp, resendSignUpCode, resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 
 
 const AuthContext = createContext();
@@ -286,6 +286,73 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const forgotPassword = async (email) => {
+    try {
+      const response = await resetPassword({
+        username: email,
+      });
+      return { 
+        success: true, 
+        nextStep: response.nextStep,
+        destination: response.nextStep?.resetPasswordStep === 'CONFIRM_RESET_PASSWORD_WITH_CODE' 
+          ? response.nextStep.codeDeliveryDetails 
+          : null
+      };
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      let errorMessage = 'Failed to initiate password reset';
+      
+      switch (error.name) {
+        case 'UserNotFoundException':
+          errorMessage = 'No account found with this email address';
+          break;
+        case 'InvalidParameterException':
+          errorMessage = 'Please enter a valid email address';
+          break;
+        case 'LimitExceededException':
+          errorMessage = 'Too many attempts. Please try again later';
+          break;
+        default:
+          errorMessage = error.message || errorMessage;
+      }
+      
+      throw new Error(errorMessage);
+    }
+  };
+
+  const confirmForgotPassword = async (email, confirmationCode, newPassword) => {
+    try {
+      await confirmResetPassword({
+        username: email,
+        confirmationCode: confirmationCode,
+        newPassword: newPassword,
+      });
+      return { success: true };
+    } catch (error) {
+      console.error('Confirm password reset error:', error);
+      let errorMessage = 'Failed to reset password';
+      
+      switch (error.name) {
+        case 'CodeMismatchException':
+          errorMessage = 'Invalid verification code';
+          break;
+        case 'ExpiredCodeException':
+          errorMessage = 'Verification code has expired';
+          break;
+        case 'InvalidPasswordException':
+          errorMessage = 'Password does not meet requirements';
+          break;
+        case 'LimitExceededException':
+          errorMessage = 'Too many attempts. Please try again later';
+          break;
+        default:
+          errorMessage = error.message || errorMessage;
+      }
+      
+      throw new Error(errorMessage);
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -295,6 +362,8 @@ export const AuthProvider = ({ children }) => {
     updateProfile,
     confirmRegistration,
     resendConfirmationCode,
+    forgotPassword,
+    confirmForgotPassword,
     isAuthenticated: !!user
   };
 
