@@ -181,25 +181,31 @@ export const AuthProvider = ({ children }) => {
         // Verify we have a current user
         const currentUser = await getCurrentUser();
         
+        // Validate phone number format if provided
+        if (profileData.phone && profileData.phone.trim()) {
+          const phoneRegex = /^\+[1-9]\d{1,14}$/;
+          if (!phoneRegex.test(profileData.phone.trim())) {
+            throw new Error('Phone number must include country code and be in international format (e.g., +1234567890)');
+          }
+        }
+
         // Prepare attributes for Cognito
         const attributes = {};
-        if (profileData.name && profileData.name !== user?.name) {
-          attributes.name = profileData.name;
+        
+        // Standard attributes
+        if (profileData.name && profileData.name.trim() && profileData.name !== user?.name) {
+          attributes.name = profileData.name.trim();
         }
-        if (profileData.phone && profileData.phone !== user?.phone) {
-          // Format phone number to E.164 format if needed
-          let formattedPhone = profileData.phone;
-          if (formattedPhone && !formattedPhone.startsWith('+')) {
-            // Add default country code if not present (assuming US +1)
-            if (formattedPhone.length === 10) {
-              formattedPhone = '+1' + formattedPhone;
-            } else if (formattedPhone.length === 11 && formattedPhone.startsWith('1')) {
-              formattedPhone = '+' + formattedPhone;
-            } else {
-              formattedPhone = '+' + formattedPhone;
-            }
-          }
-          attributes.phone_number = formattedPhone;
+        if (profileData.phone && profileData.phone.trim() && profileData.phone !== user?.phone) {
+          attributes.phone_number = profileData.phone.trim();
+        }
+        if (profileData.address && profileData.address.trim() && profileData.address !== user?.address) {
+          attributes.address = profileData.address.trim();
+        }
+        
+        // Custom attributes
+        if (profileData.bio && profileData.bio.trim() && profileData.bio !== user?.bio) {
+          attributes['custom:bio'] = profileData.bio.trim();
         }
         
         if (Object.keys(attributes).length > 0) {

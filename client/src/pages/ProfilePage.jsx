@@ -9,7 +9,7 @@ const ProfilePage = () => {
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    location: user?.location || '',
+    address: user?.address || '',
     bio: user?.bio || '',
     joinedDate: user?.joinedDate || new Date().toISOString().split('T')[0],
     // Alert preferences
@@ -31,8 +31,27 @@ const ProfilePage = () => {
     }));
   };
 
+  const validatePhoneNumber = (phone) => {
+    if (!phone || phone.trim() === "") return true; // Allow empty phone numbers
+    
+    // Check if phone starts with + (country code)
+    if (!phone.trim().startsWith("+")) {
+      return false;
+    }
+    
+    // Check if it has at least country code + some digits (minimum +1234567890 format)
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    return phoneRegex.test(phone.trim());
+  };
+
   const handleSave = async () => {
     try {
+      // Validate phone number if provided
+      if (profileData.phone && !validatePhoneNumber(profileData.phone)) {
+        alert("Please enter a valid phone number with country code (e.g., +1234567890)");
+        return;
+      }
+
       const result = await updateProfile(profileData);
       setIsEditing(false);
       
@@ -57,7 +76,7 @@ const ProfilePage = () => {
       name: user?.name || '',
       email: user?.email || '',
       phone: user?.phone || '',
-      location: user?.location || '',
+      address: user?.address || '',
       bio: user?.bio || '',
       joinedDate: user?.joinedDate || new Date().toISOString().split('T')[0],
       alertRadius: user?.alertRadius || 50,
@@ -164,7 +183,7 @@ const ProfilePage = () => {
                         className="profile-input"
                         value={profileData.phone}
                         onChange={(e) => handleInputChange('phone', e.target.value)}
-                        placeholder="Enter your phone number"
+                        placeholder="Enter phone with country code (e.g., +1234567890)"
                       />
                     )}
                   </div>
@@ -175,16 +194,16 @@ const ProfilePage = () => {
                     <MapPin size={20} />
                   </div>
                   <div className="field-content">
-                    <label className="field-label">Location</label>
+                    <label className="field-label">Address</label>
                     {!isEditing ? (
-                      <p className="field-value">{profileData.location || 'Not provided'}</p>
+                      <p className="field-value">{profileData.address || 'Not provided'}</p>
                     ) : (
                       <input
                         type="text"
                         className="profile-input"
-                        value={profileData.location}
-                        onChange={(e) => handleInputChange('location', e.target.value)}
-                        placeholder="Enter your location"
+                        value={profileData.address}
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        placeholder="Enter your address"
                       />
                     )}
                   </div>
