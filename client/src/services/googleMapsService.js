@@ -34,15 +34,18 @@ class GoogleMapsService {
   async loadGoogleMaps() {
     if (this.isLoaded) return this.google;
 
-    const config = await this.fetchMapsConfig();
+    // Fetch configuration from backend API
+    const { apiKey, mapId, libraries, version } = await fetch('/api/maps/config').then(res => res.json());
 
     const loader = new Loader({
-      apiKey: config.apiKey,
-      version: config.version || 'weekly',
-      libraries: config.libraries || ['marker', 'places', 'geometry']
+      apiKey,
+      version,
+      libraries,
+      mapIds: GOOGLE_MAPS_ID, 
     });
 
-    this.google = await loader.load();
+    await loader.load();
+    this.google = window.google;
     
     // Import the AdvancedMarkerElement specifically
     try {
@@ -58,18 +61,17 @@ class GoogleMapsService {
   async initializeMap(container, options = {}) {
     await this.loadGoogleMaps();
     
-    // Get configuration including Map ID
-    const config = await this.fetchMapsConfig();
+    // Fetch configuration including Map ID
+    const { apiKey, mapId, libraries, version } = await fetch('/api/maps/config').then(res => res.json());
     
     const defaultOptions = {
-      center: { lat: 3.1390, lng: 101.6869 }, // Kuala Lumpur
-      zoom: 12,
-      mapTypeId: this.google.maps.MapTypeId.ROADMAP,
-      mapId: config.mapId, // Use Map ID from backend
+      center: { lat: 0, lng: 0 },
+      zoom: 10,
+      mapId: GOOGLE_MAPS_ID, // also set in the map options
       ...options
     };
 
-    this.map = new this.google.maps.Map(container, defaultOptions);
+    this.map = new google.maps.Map(document.getElementById("map"), defaultOptions);
     this.directionsService = new this.google.maps.DirectionsService();
     this.directionsRenderer = new this.google.maps.DirectionsRenderer({
       suppressMarkers: true, // We'll use custom markers
@@ -151,7 +153,7 @@ class GoogleMapsService {
         anchor: new this.google.maps.Point(16, 16)
       }
     });
-
+    
     const infoWindow = new this.google.maps.InfoWindow({
       content: `
         <div style="min-width: 200px; padding: 8px;">
