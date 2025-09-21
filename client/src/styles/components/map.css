@@ -1,4 +1,10 @@
-/* Map Component Styles */
+/* =================================================================== */
+/* MAP COMPONENT STYLES                                               */
+/* =================================================================== */
+
+/* ------------------------------------ */
+/* 1. DISASTER MAP                      */
+/* ------------------------------------ */
 .disaster-map {
   position: relative;
   width: 100%;
@@ -12,6 +18,7 @@
   overflow: hidden;
 }
 
+/* Loading States */
 .disaster-map .loading-overlay {
   position: absolute;
   top: 0;
@@ -46,6 +53,7 @@
   100% { transform: rotate(360deg); }
 }
 
+/* Error States */
 .disaster-map .error-state {
   display: flex;
   align-items: center;
@@ -71,9 +79,9 @@
   margin-bottom: 0.25rem;
 }
 
-<<<<<<< Updated upstream
-=======
-/* Route Controls */
+/* ------------------------------------ */
+/* 2. ROUTE CONTROLS                    */
+/* ------------------------------------ */
 .route-controls {
   background: var(--bg-primary);
   border-radius: var(--border-radius-lg);
@@ -89,6 +97,7 @@
   color: var(--text-primary);
 }
 
+/* Input Sections */
 .route-controls .input-section {
   margin-bottom: 1rem;
 }
@@ -131,6 +140,7 @@
   cursor: not-allowed;
 }
 
+/* Error Messages */
 .route-controls .error-message {
   background: var(--bg-error, #fef2f2);
   color: var(--text-error, #dc2626);
@@ -143,6 +153,7 @@
   gap: 0.5rem;
 }
 
+/* Button Groups */
 .route-controls .button-group {
   display: flex;
   flex-direction: column;
@@ -150,6 +161,7 @@
   margin-bottom: 1rem;
 }
 
+/* Primary Button */
 .route-controls .primary-button {
   background: var(--color-primary);
   color: var(--text-button-primary, white);
@@ -174,6 +186,7 @@
   cursor: not-allowed;
 }
 
+/* Secondary Button */
 .route-controls .secondary-button {
   background: var(--color-success, #10b981);
   color: var(--text-button-secondary, white);
@@ -198,6 +211,7 @@
   cursor: not-allowed;
 }
 
+/* Clear Button */
 .route-controls .clear-button {
   background: var(--color-gray, #6b7280);
   color: var(--text-button-clear, white);
@@ -212,6 +226,7 @@
   background: var(--color-gray-hover, #4b5563);
 }
 
+/* Help Text */
 .route-controls .help-text {
   background: var(--bg-secondary);
   padding: 0.75rem;
@@ -228,6 +243,7 @@
   margin-bottom: 0;
 }
 
+/* Small Loading Spinner */
 .route-controls .loading-spinner.small {
   width: 16px;
   height: 16px;
@@ -237,7 +253,9 @@
   animation: spin 1s linear infinite;
 }
 
->>>>>>> Stashed changes
+/* ------------------------------------ */
+/* 3. MAP SIDEBAR                       */
+/* ------------------------------------ */
 .map-sidebar {
   width: 20rem;
   background-color: white;
@@ -257,7 +275,11 @@
 }
 
 .map-sidebar-section {
-  margin-bottom: var(--space-lg);
+  margin-bottom: 2rem;
+}
+
+.map-sidebar-section:last-child {
+  margin-bottom: 0;
 }
 
 .map-sidebar-section-title {
@@ -267,6 +289,9 @@
   margin-bottom: 0.75rem;
 }
 
+/* ------------------------------------ */
+/* 4. ROUTE PLANNING                    */
+/* ------------------------------------ */
 .route-planning-form {
   display: flex;
   flex-direction: column;
@@ -298,6 +323,9 @@
   margin-right: var(--space-sm);
 }
 
+/* ------------------------------------ */
+/* 5. ALERT LIST                        */
+/* ------------------------------------ */
 .alert-list {
   display: flex;
   flex-direction: column;
@@ -347,6 +375,9 @@
   margin: var(--space-xs) 0;
 }
 
+/* ------------------------------------ */
+/* 6. ROUTE LIST                        */
+/* ------------------------------------ */
 .route-list {
   display: flex;
   flex-direction: column;
@@ -391,30 +422,9 @@
   margin-bottom: 0;
 }
 
-/* Responsive adjustments for smaller screens */
-@media (max-width: 768px) {
-  .route-controls .button-group {
-    flex-direction: column;
-  }
-  
-  .route-controls .primary-button,
-  .route-controls .secondary-button,
-  .route-controls .clear-button {
-    flex: 1 1 auto;
-    min-width: 100%;
-  }
-}
-
-/* Add spacing between major sections */
-.map-sidebar-section {
-  margin-bottom: 2rem;
-}
-
-.map-sidebar-section:last-child {
-  margin-bottom: 0;
-}
-
-/* Responsive adjustments for smaller screens */
+/* ------------------------------------ */
+/* 7. RESPONSIVE DESIGN                 */
+/* ------------------------------------ */
 @media (max-width: 768px) {
   .route-controls .button-group {
     flex-direction: column;

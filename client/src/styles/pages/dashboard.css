@@ -300,7 +300,104 @@
   margin: 0 auto;
 }
 
-/* Social Media Analytics */
+/* Twitter Analytics - Enhanced */
+.twitter-analytics {
+  margin-top: var(--spacing-8);
+}
+
+.twitter-stats-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-6);
+}
+
+.twitter-card-enhanced {
+  background: linear-gradient(135deg, #3d5a80 0%, #2c4564 100%);
+  border-radius: 16px;
+  padding: var(--spacing-6);
+  color: white;
+  box-shadow: 0 4px 20px rgba(61, 90, 128, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.twitter-card-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(61, 90, 128, 0.3);
+}
+
+.twitter-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-6);
+}
+
+.twitter-icon {
+  color: white;
+}
+
+.twitter-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+}
+
+.twitter-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-6);
+}
+
+.metric-item {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: var(--spacing-4);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.metric-label {
+  display: block;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: var(--spacing-1);
+  font-weight: 500;
+}
+
+.metric-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.twitter-progress {
+  margin-top: var(--spacing-4);
+}
+
+.progress-bar {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: var(--spacing-2);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff87 0%, #60efff 100%);
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.progress-label {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -326,16 +423,106 @@
   }
 }
 
-/* Social Media Platform Cards */
-.social-media-grid {
+/* Twitter Analytics Enhanced */
+.twitter-analytics {
+  background: linear-gradient(135deg, #3d5a80 0%, #2c4564 100%);
+  color: white;
+  border: none;
+}
+
+.twitter-analytics .content-card-title {
+  color: white;
+  margin-bottom: var(--spacing-6);
+}
+
+.twitter-stats-container {
+  width: 100%;
+}
+
+
+
+.twitter-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-5);
+}
+
+.twitter-icon {
+  color: white;
+}
+
+.twitter-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+}
+
+.twitter-metrics {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+}
+
+.metric-item {
+  text-align: center;
+  padding: var(--spacing-3);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.metric-label {
+  display: block;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: var(--spacing-1);
+}
+
+.metric-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.twitter-progress {
+  text-align: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: var(--spacing-2);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-label {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Social Media Platform Cards - Legacy (keep for compatibility) */
+.social-media-grid {
+  display: flex;
+  justify-content: center;
   gap: var(--spacing-4);
 }
 
 @media (min-width: 768px) {
   .social-media-grid {
-    grid-template-columns: repeat(3, 1fr);
+    justify-content: flex-start;
   }
 }
 

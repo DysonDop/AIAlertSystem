@@ -22,7 +22,9 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const activeAlertsData = await alertService.getActiveAlerts();
+        
+        // Skip API call for now and use mock data directly
+        // const activeAlertsData = await alertService.getActiveAlerts();
         
         // Mock social media monitoring data for development
         const mockAlerts = [
@@ -78,25 +80,36 @@ const Dashboard = () => {
         
         setAlerts(mockAlerts);
         
-        // Mock social media monitoring statistics
+        // Mock social media monitoring statistics - Replace with real data later
         const mockStats = {
-          totalPosts: 2847,
-          verifiedPosts: 1923,
-          validatedAlerts: 34,
-          responseTime: 4.2, // minutes
-          accuracyRate: 87.5, // percentage
-          activeMonitoring: 6, // active sources
+          totalPosts: '-',
+          verifiedPosts: '-', 
+          validatedAlerts: '-',
+          responseTime: '-', // minutes
+          accuracyRate: '-', // percentage
+          activeMonitoring: '-', // active sources
         };
         setStats(mockStats);
+        console.log('📊 Dashboard stats updated:', mockStats);
 
-        // Mock social media platform stats
+        // Mock social media platform stats - Replace with real data later
         setSocialMediaStats({
-          twitter: { posts: 1580, verified: 1245, accuracy: 89 },
-          facebook: { posts: 892, verified: 567, accuracy: 84 },
-          instagram: { posts: 375, verified: 111, accuracy: 92 },
+          twitter: { posts: '-', verified: '-', accuracy: '-' },
         });
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
+        // Set some default dash data even on error
+        setStats({
+          totalPosts: '-',
+          verifiedPosts: '-',
+          validatedAlerts: '-',
+          responseTime: '-',
+          accuracyRate: '-',
+          activeMonitoring: '-',
+        });
+        setSocialMediaStats({
+          twitter: { posts: '-', verified: '-', accuracy: '-' },
+        });
       } finally {
         setLoading(false);
       }
@@ -115,35 +128,6 @@ const Dashboard = () => {
           <p className="stat-card-label">{label}</p>
           <p className="stat-card-value">{value}{suffix}</p>
         </div>
-      </div>
-    </div>
-  );
-
-  const SocialMediaCard = ({ platform, data, icon: Icon }) => (
-    <div className="social-media-card">
-      <div className="social-media-header">
-        <Icon size={20} />
-        <h4>{platform}</h4>
-      </div>
-      <div className="social-media-stats">
-        <div className="social-stat">
-          <span className="stat-label">Posts</span>
-          <span className="stat-value">{data.posts}</span>
-        </div>
-        <div className="social-stat">
-          <span className="stat-label">Verified</span>
-          <span className="stat-value">{data.verified}</span>
-        </div>
-        <div className="social-stat">
-          <span className="stat-label">Accuracy</span>
-          <span className="stat-value">{data.accuracy}%</span>
-        </div>
-      </div>
-      <div className="social-progress">
-        <div 
-          className="social-progress-bar" 
-          style={{ width: `${data.accuracy}%` }}
-        ></div>
       </div>
     </div>
   );
@@ -175,13 +159,13 @@ const Dashboard = () => {
           <StatCard
             icon={Twitter}
             label="Social Media Posts"
-            value={stats.totalPosts.toLocaleString()}
+            value={stats.totalPosts.toLocaleString ? stats.totalPosts.toLocaleString() : stats.totalPosts}
             color="blue"
           />
           <StatCard
             icon={CheckCircle}
             label="Verified Posts"
-            value={stats.verifiedPosts.toLocaleString()}
+            value={stats.verifiedPosts.toLocaleString ? stats.verifiedPosts.toLocaleString() : stats.verifiedPosts}
             color="green"
           />
           <StatCard
@@ -195,21 +179,21 @@ const Dashboard = () => {
             label="Response Time"
             value={stats.responseTime}
             color="orange"
-            suffix=" min"
+            suffix={stats.responseTime !== '-' ? ' min' : ''}
           />
           <StatCard
             icon={TrendingUp}
             label="Accuracy Rate"
             value={stats.accuracyRate}
             color="purple"
-            suffix="%"
+            suffix={stats.accuracyRate !== '-' ? '%' : ''}
           />
           <StatCard
             icon={BarChart3}
             label="Active Monitoring"
             value={stats.activeMonitoring}
             color="indigo"
-            suffix=" sources"
+            suffix={stats.activeMonitoring !== '-' ? ' sources' : ''}
           />
         </div>
 
@@ -288,25 +272,36 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Social Media Monitoring Stats */}
-        <div className="content-card">
-          <h2 className="content-card-title">📱 Social Media Platform Analytics</h2>
-          <div className="social-media-grid">
-            <SocialMediaCard
-              platform="Twitter"
-              data={socialMediaStats.twitter}
-              icon={Twitter}
-            />
-            <SocialMediaCard
-              platform="Facebook"
-              data={socialMediaStats.facebook}
-              icon={() => <span className="facebook-icon">f</span>}
-            />
-            <SocialMediaCard
-              platform="Instagram"
-              data={socialMediaStats.instagram}
-              icon={() => <span className="instagram-icon">📷</span>}
-            />
+        {/* Twitter Analytics - Enhanced */}
+        <div className="content-card twitter-analytics">
+          <h2 className="content-card-title">🐦 Twitter Analytics</h2>
+          <div className="twitter-stats-container">
+            <div className="twitter-card-enhanced">
+              <div className="twitter-header">
+                <Twitter size={24} className="twitter-icon" />
+                <h3>Twitter Monitoring</h3>
+              </div>
+              <div className="twitter-metrics">
+                <div className="metric-item">
+                  <span className="metric-label">Posts Monitored</span>
+                  <span className="metric-value">{socialMediaStats.twitter?.posts || '-'}</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-label">Verified Posts</span>
+                  <span className="metric-value">{socialMediaStats.twitter?.verified || '-'}</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-label">Accuracy Rate</span>
+                  <span className="metric-value">{socialMediaStats.twitter?.accuracy !== '-' ? `${socialMediaStats.twitter?.accuracy}%` : '-'}</span>
+                </div>
+              </div>
+              <div className="twitter-progress">
+                <div className="progress-bar">
+                  <div className="progress-fill" style={{width: socialMediaStats.twitter?.accuracy !== '-' ? `${socialMediaStats.twitter?.accuracy}%` : '0%'}}></div>
+                </div>
+                <span className="progress-label">Validation Accuracy</span>
+              </div>
+            </div>
           </div>
         </div>
 
