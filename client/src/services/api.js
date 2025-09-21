@@ -111,7 +111,7 @@ export const alertService = {
    */
   async getActiveAlerts() {
     const response = await api.get('/getalerts');
-    const alerts = response.data;
+    const alerts = response.data.alerts;
     
     // Filter for active alerts (assuming status 'active' or similar)
     return alerts.filter(alert => 
