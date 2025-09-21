@@ -27,7 +27,7 @@ const Navigation = ({ className }) => {
     { to: '/app/dashboard', icon: Home, label: 'Dashboard' },
     { to: '/app/alerts', icon: AlertTriangle, label: 'Alerts' },
     { to: '/app/map', icon: Map, label: 'Map' },
-    { to: '/app/search', icon: Search, label: 'Search & Rescue' },
+    { to: '/app/search', icon: Search, label: 'Social Monitor' },
     { to: '/app/settings', icon: Settings, label: 'Settings' },
   ];
 
