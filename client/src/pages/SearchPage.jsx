@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Twitter, TrendingUp, MapPin, Clock, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Twitter, TrendingUp, MapPin, Clock, AlertTriangle, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import DisasterMap from '../components/maps/DisasterMap';
+import Tweet from '../components/social/Tweet';
+import tweetService from '../services/tweetService';
 import { alertService, twitterService, weatherService } from '../services/api.js';
 import '../styles/pages/search.css';
 
@@ -9,25 +11,33 @@ const SearchPage = () => {
   const [tweets, setTweets] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('tweets');
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [activeTab, setActiveTab] = useState('social');
   const [selectedDisasterType, setSelectedDisasterType] = useState('all');
+  const [tweetCount, setTweetCount] = useState(10);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const alertsData = await alertService.getActiveAlerts();
-        setAlerts(alertsData || []);
         
-        // Mock social media placeholder - Replace with real data later
-        const mockTweets = [];
-        setTweets(mockTweets);
-
-        // Mock alerts placeholder - Replace with real data later
-        const mockAlerts = [];
-        setAlerts(mockAlerts);
+        // Fetch tweets from S3 bucket using tweet service
+        const tweetsData = await tweetService.getTweets(10);
+        setTweets(tweetsData || []);
+        
+        // Fetch alerts (keeping existing logic for now)
+        try {
+          const alertsData = await alertService.getActiveAlerts();
+          setAlerts(alertsData || []);
+        } catch (alertError) {
+          console.warn('Alert service not available:', alertError);
+          setAlerts([]);
+        }
+        
       } catch (error) {
         console.error('Failed to fetch data:', error);
+        setTweets([]);
+        setAlerts([]);
       } finally {
         setLoading(false);
       }
@@ -36,18 +46,74 @@ const SearchPage = () => {
     fetchData();
   }, []);
 
+  // Load more tweets function
+  const loadMoreTweets = async () => {
+    try {
+      setLoadingMore(true);
+      const moreTweets = await tweetService.getMoreTweets(tweetCount, 10);
+      setTweets(prev => [...prev, ...moreTweets]);
+      setTweetCount(prev => prev + 10);
+    } catch (error) {
+      console.error('Failed to load more tweets:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Refresh tweets function
+  const refreshTweets = async () => {
+    try {
+      setLoading(true);
+      const freshTweets = await tweetService.getTweets(10, true);
+      setTweets(freshTweets);
+      setTweetCount(10);
+    } catch (error) {
+      console.error('Failed to refresh tweets:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Debug function to check S3 connection
+  const debugS3Connection = async () => {
+    try {
+      const stats = tweetService.getStats();
+      const fileInfo = await tweetService.getFileInfo();
+      const rawData = tweetService.getRawData();
+      
+      console.log('Tweet Service Stats:', stats);
+      console.log('S3 Files Info:', fileInfo);
+      console.log('Raw S3 Data Sample:', rawData ? Object.keys(rawData).slice(0, 20) : 'No raw data');
+      
+      const debugInfo = {
+        connection: stats,
+        files: fileInfo,
+        sampleData: rawData ? Object.keys(rawData).slice(0, 10) : null,
+        dataStructure: rawData ? typeof rawData : 'No data'
+      };
+      
+      alert(`Debug Info:\n${JSON.stringify(debugInfo, null, 2)}`);
+    } catch (error) {
+      console.error('Debug failed:', error);
+      alert(`Debug failed: ${error.message}`);
+    }
+  };
+
   const disasterTypes = ['all', 'earthquake', 'flood', 'wildfire', 'storm'];
 
-  const filteredTweets = selectedDisasterType === 'all' 
-    ? tweets.filter(tweet => 
-        tweet.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tweet.keywords.some(keyword => keyword.toLowerCase().includes(searchTerm.toLowerCase()))
-      )
-    : tweets.filter(tweet => 
-        tweet.disasterTypes.includes(selectedDisasterType) &&
-        (tweet.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-         tweet.keywords.some(keyword => keyword.toLowerCase().includes(searchTerm.toLowerCase())))
-      );
+  const filteredTweets = tweets.filter(tweet => {
+    const matchesSearch = searchTerm === '' || 
+      tweet.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tweet.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (tweet.hashtags && tweet.hashtags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
+    
+    const matchesType = selectedDisasterType === 'all' || 
+      (tweet.hashtags && tweet.hashtags.some(tag => 
+        tag.toLowerCase().includes(selectedDisasterType.toLowerCase())
+      ));
+    
+    return matchesSearch && matchesType;
+  });
 
   if (loading) {
     return (
@@ -105,11 +171,11 @@ const SearchPage = () => {
         {/* Tabs */}
         <div className="tabs mb-8">
           <button
-            className={`tab ${activeTab === 'tweets' ? 'active' : ''}`}
-            onClick={() => setActiveTab('tweets')}
+            className={`tab ${activeTab === 'social' ? 'active' : ''}`}
+            onClick={() => setActiveTab('social')}
           >
             <Twitter size={16} />
-            Social Posts ({filteredTweets.length})
+            Social Media Posts ({filteredTweets.length})
           </button>
           <button
             className={`tab ${activeTab === 'alerts' ? 'active' : ''}`}
@@ -122,70 +188,68 @@ const SearchPage = () => {
 
         {/* Content */}
         <div className="content">
-          {activeTab === 'tweets' ? (
-            <div className="tweets-grid">
-              {filteredTweets.length === 0 ? (
-                <div className="empty-state">
-                  <Twitter size={48} className="empty-icon" />
-                  <h3>No social media posts found</h3>
-                  <p>Try adjusting your search filters</p>
+          {activeTab === 'social' ? (
+            <div className="social-media-section">
+              {/* Social Media Posts Header */}
+              <div className="section-header">
+                <h2 className="section-title">Social Media Posts</h2>
+                <div className="header-controls">
+                  <button 
+                    onClick={debugS3Connection}
+                    className="debug-btn"
+                    title="Debug S3 Connection"
+                  >
+                    Debug S3
+                  </button>
+                  <button 
+                    onClick={refreshTweets}
+                    className="refresh-btn"
+                    disabled={loading}
+                  >
+                    <RefreshCw size={16} className={loading ? 'spinning' : ''} />
+                    Refresh
+                  </button>
                 </div>
-              ) : (
-                filteredTweets.map(tweet => (
-                  <div key={tweet.id} className="tweet-card content-card">
-                    <div className="tweet-header">
-                      <div className="user-info">
-                        <img src={tweet.author.avatar} alt={tweet.author.name} className="avatar" />
-                        <div>
-                          <div className="username">{tweet.author.name}</div>
-                          <div className="handle">@{tweet.author.handle}</div>
-                        </div>
-                      </div>
-                      <div className="tweet-meta">
-                        <span className="timestamp">{tweet.timestamp}</span>
-                        <span className={`validation-badge ${tweet.validationStatus}`}>
-                          {tweet.validationStatus === 'verified' && <CheckCircle size={14} />}
-                          {tweet.validationStatus === 'pending' && <Clock size={14} />}
-                          {tweet.validationStatus === 'conflicting' && <AlertTriangle size={14} />}
-                          {tweet.validationStatus.charAt(0).toUpperCase() + tweet.validationStatus.slice(1)}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="tweet-content">
-                      <p>{tweet.content}</p>
-                      {tweet.media && tweet.media.length > 0 && (
-                        <div className="tweet-media">
-                          {tweet.media.map((media, index) => (
-                            <img key={index} src={media.url} alt="Social media content" className="media-image" />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="tweet-footer">
-                      <div className="engagement-stats">
-                        <span className="stat">
-                          <MapPin size={14} />
-                          {tweet.location}
-                        </span>
-                        <span className="stat">
-                          <TrendingUp size={14} />
-                          Relevance: {tweet.relevanceScore}%
-                        </span>
-                      </div>
-                      
-                      <div className="disaster-tags">
-                        {tweet.disasterTypes.map(type => (
-                          <span key={type} className={`disaster-tag ${type}`}>
-                            {type}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+              </div>
+
+              {/* Tweets Grid */}
+              <div className="tweets-grid">
+                {filteredTweets.length === 0 ? (
+                  <div className="empty-state">
+                    <Twitter size={48} className="empty-icon" />
+                    <h3>No social media posts found</h3>
+                    <p>Try adjusting your search filters</p>
                   </div>
-                ))
-              )}
+                ) : (
+                  <>
+                    {filteredTweets.slice(0, 10).map(tweet => (
+                      <div key={tweet.id} className="tweet-wrapper">
+                        <Tweet tweet={tweet} />
+                      </div>
+                    ))}
+                    
+                    {/* Load More Button */}
+                    {tweets.length >= 10 && (
+                      <div className="load-more-section">
+                        <button 
+                          onClick={loadMoreTweets}
+                          className="load-more-btn"
+                          disabled={loadingMore}
+                        >
+                          {loadingMore ? (
+                            <>
+                              <RefreshCw size={16} className="spinning" />
+                              Loading...
+                            </>
+                          ) : (
+                            'Load More Posts'
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           ) : (
             <div className="alerts-grid">
