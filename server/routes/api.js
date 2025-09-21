@@ -173,6 +173,117 @@ router.get('/getSafeZones', async (req, res) => {
 });
 
 /**
+ * GET /getalerts
+ * Get all disaster alerts
+ */
+router.get('/getalerts', (req, res) => {
+  try {
+    // Mock alerts data for development
+    const mockAlerts = [
+      {
+        id: '1',
+        type: 'earthquake',
+        severity: 'high',
+        title: 'Magnitude 6.2 Earthquake',
+        description: 'Strong earthquake detected near downtown area. Buildings may be affected.',
+        location: {
+          lat: 37.7749,
+          lng: -122.4194,
+          address: 'San Francisco, CA',
+          radius: 25,
+        },
+        timestamp: new Date().toISOString(),
+        source: 'meteorological',
+        isActive: true,
+        status: 'active'
+      },
+      {
+        id: '2',
+        type: 'flood',
+        severity: 'critical',
+        title: 'Flash Flood Warning',
+        description: 'Severe flooding expected in low-lying areas due to heavy rainfall.',
+        location: {
+          lat: 37.7849,
+          lng: -122.4094,
+          address: 'Mission District, SF',
+          radius: 15,
+        },
+        timestamp: new Date(Date.now() - 3600000).toISOString(),
+        source: 'twitter',
+        isActive: true,
+        status: 'active'
+      },
+      {
+        id: '3',
+        type: 'fire',
+        severity: 'medium',
+        title: 'Wildfire Alert',
+        description: 'Wildfire spreading in rural areas. Evacuation may be necessary.',
+        location: {
+          lat: 37.7649,
+          lng: -122.4294,
+          address: 'Golden Gate Park, SF',
+          radius: 10,
+        },
+        timestamp: new Date(Date.now() - 7200000).toISOString(),
+        source: 'meteorological',
+        isActive: false,
+        status: 'resolved'
+      },
+      {
+        id: '4',
+        type: 'storm',
+        severity: 'high',
+        title: 'Severe Thunderstorm Warning',
+        description: 'Severe thunderstorm with high winds and hail approaching the area.',
+        location: {
+          lat: 37.7549,
+          lng: -122.4394,
+          address: 'Richmond District, SF',
+          radius: 20,
+        },
+        timestamp: new Date(Date.now() - 1800000).toISOString(),
+        source: 'meteorological',
+        isActive: true,
+        status: 'active'
+      },
+      {
+        id: '5',
+        type: 'tsunami',
+        severity: 'critical',
+        title: 'Tsunami Watch',
+        description: 'Tsunami watch issued for coastal areas following offshore earthquake.',
+        location: {
+          lat: 37.8049,
+          lng: -122.4194,
+          address: 'Fisherman\'s Wharf, SF',
+          radius: 30,
+        },
+        timestamp: new Date(Date.now() - 900000).toISOString(),
+        source: 'meteorological',
+        isActive: true,
+        status: 'active'
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: mockAlerts,
+      count: mockAlerts.length,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error in /getalerts endpoint:', error.message);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: 'An unexpected error occurred while fetching alerts'
+    });
+  }
+});
+
+/**
  * GET /health
  * Health check endpoint
  */
