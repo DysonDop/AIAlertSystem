@@ -9,7 +9,7 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}; 
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -21,12 +21,20 @@ export const AuthProvider = ({ children }) => {
       try {
         const currentUser = await getCurrentUser();
         if (currentUser) {
+          // Import fetchUserAttributes to get all user attributes
+          const { fetchUserAttributes } = await import('aws-amplify/auth');
+          const userAttributes = await fetchUserAttributes();
+          
           setUser({
             id: currentUser.userId,
             email: currentUser.signInDetails?.loginId || currentUser.username,
-            name: currentUser.signInDetails?.loginId?.split('@')[0] || currentUser.username,
+            name: userAttributes?.name || currentUser.signInDetails?.loginId?.split('@')[0] || currentUser.username,
             username: currentUser.username,
-            attributes: currentUser.attributes || {}
+            phone: userAttributes?.phone_number || '',
+            address: userAttributes?.address || '',
+            bio: userAttributes?.['custom:bio'] || '',
+            joinedDate: new Date().toISOString().split('T')[0],
+            attributes: userAttributes || {}
           });
         }
       } catch (error) {
@@ -51,12 +59,19 @@ export const AuthProvider = ({ children }) => {
       if (isSignedIn) {
         // Get user details after successful sign in
         const currentUser = await getCurrentUser();
+        const { fetchUserAttributes } = await import('aws-amplify/auth');
+        const userAttributes = await fetchUserAttributes();
+        
         const userData = {
           id: currentUser.userId,
           email: currentUser.signInDetails?.loginId || email,
-          name: currentUser.signInDetails?.loginId?.split('@')[0] || currentUser.username,
+          name: userAttributes?.name || currentUser.signInDetails?.loginId?.split('@')[0] || currentUser.username,
           username: currentUser.username,
-          attributes: currentUser.attributes || {}
+          phone: userAttributes?.phone_number || '',
+          address: userAttributes?.address || '',
+          bio: userAttributes?.['custom:bio'] || '',
+          joinedDate: new Date().toISOString().split('T')[0],
+          attributes: userAttributes || {}
         };
         
         setUser(userData);
@@ -156,13 +171,37 @@ export const AuthProvider = ({ children }) => {
 
   const updateProfile = async (profileData) => {
     try {
+      // Validate phone number format if provided
+      if (profileData.phone && profileData.phone.trim()) {
+        const phoneRegex = /^\+[1-9]\d{1,14}$/;
+        if (!phoneRegex.test(profileData.phone.trim())) {
+          throw new Error('Phone number must include country code and be in international format (e.g., +1234567890)');
+        }
+      }
+
       // Update user attributes in Cognito
       const { updateUserAttributes } = await import('aws-amplify/auth');
       
       // Prepare attributes for Cognito
       const attributes = {};
-      if (profileData.name) attributes.name = profileData.name;
-      if (profileData.phone) attributes.phone_number = profileData.phone;
+      
+      // Standard attributes
+      if (profileData.name && profileData.name.trim()) {
+        attributes.name = profileData.name.trim();
+      }
+      if (profileData.phone && profileData.phone.trim()) {
+        attributes.phone_number = profileData.phone.trim();
+      }
+      
+      // Standard address attribute
+      if (profileData.address && profileData.address.trim()) {
+        attributes.address = profileData.address.trim();
+      }
+      if (profileData.bio && profileData.bio.trim()) {
+        attributes['custom:bio'] = profileData.bio.trim();
+      }
+      
+      console.log('Updating user attributes:', attributes);
       
       if (Object.keys(attributes).length > 0) {
         await updateUserAttributes({
