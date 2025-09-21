@@ -73,10 +73,10 @@ const Dashboard = () => {
     <div className="stat-card">
       <div className="stat-card-content">
         <div className={`stat-card-icon ${color}`}>
-          <Icon />
+          <Icon size={20} />
         </div>
         <div className="stat-card-text">
-          <p className="stat-card-label">{label}</p>
+          <p className="stat-card-label" style={{ fontSize: '0.95em', fontWeight: '500' }}>{label}</p>
           <p className="stat-card-value">{value}{suffix}</p>
         </div>
       </div>
@@ -225,13 +225,14 @@ const Dashboard = () => {
 
         {/* Twitter Analytics - Enhanced */}
         <div className="content-card twitter-analytics">
-          <h2 className="content-card-title">🐦 Twitter Analytics</h2>
+          <div className="content-card-header">
+            <h2 className="content-card-title">
+              <Twitter size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+              Twitter Analytics
+            </h2>
+          </div>
           <div className="twitter-stats-container">
             <div className="twitter-card-enhanced">
-              <div className="twitter-header">
-                <Twitter size={24} className="twitter-icon" />
-                <h3>Twitter Monitoring</h3>
-              </div>
               <div className="twitter-metrics">
                 <div className="metric-item">
                   <span className="metric-label">Posts Monitored</span>

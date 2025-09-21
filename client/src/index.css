@@ -2,6 +2,7 @@
 
 /* Import custom styles */
 @import './styles/variables.css';
+@import './styles/responsive.css';
 @import './styles/utils/utilities.css';
 @import './styles/components/common.css';
 @import './styles/components/alert-card.css';

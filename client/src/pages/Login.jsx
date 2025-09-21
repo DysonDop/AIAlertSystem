@@ -142,7 +142,7 @@ const Login = () => {
                   className="input-action"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>
               </div>
             </div>
@@ -180,11 +180,6 @@ const Login = () => {
               </Link>
             </p>
           </div>
-        </div>
-
-        {/* Demo Info */}
-        <div className="demo-info">
-          <p><strong>Demo Mode:</strong> Use any email and password to login</p>
         </div>
       </div>
     </div>

@@ -1,19 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { AlertTriangle, Map, Search, Home, Settings, LogOut, User, ChevronDown } from 'lucide-react';
+import { AlertTriangle, Map, Search, Home, Settings, LogOut, User, ChevronDown, Menu, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Navigation = ({ className }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const userMenuRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
-  // Close user menu when clicking outside
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setShowUserMenu(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setShowMobileMenu(false);
       }
     };
 
@@ -38,7 +43,16 @@ const Navigation = ({ className }) => {
 
   const handleProfileClick = () => {
     setShowUserMenu(false);
+    setShowMobileMenu(false);
     navigate('/app/profile');
+  };
+
+  const handleMobileNavClick = () => {
+    setShowMobileMenu(false);
+  };
+
+  const toggleMobileMenu = () => {
+    setShowMobileMenu(!showMobileMenu);
   };
 
   return (
@@ -52,6 +66,7 @@ const Navigation = ({ className }) => {
             </span>
           </div>
           
+          {/* Desktop Navigation */}
           <div className="navbar-nav">
             {navItems.map(({ to, icon: Icon, label }) => (
               <NavLink
@@ -67,7 +82,7 @@ const Navigation = ({ className }) => {
             ))}
           </div>
 
-          {/* User Menu */}
+          {/* Desktop User Menu */}
           <div className="navbar-user" ref={userMenuRef}>
             <div 
               className="user-menu-trigger"
@@ -105,14 +120,66 @@ const Navigation = ({ className }) => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="navbar-mobile-btn">
-            <button>
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
+          <button 
+            className="navbar-mobile-btn"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle mobile menu"
+            aria-expanded={showMobileMenu}
+          >
+            {showMobileMenu ? (
+              <X size={24} />
+            ) : (
+              <Menu size={24} />
+            )}
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {showMobileMenu && (
+          <div className="navbar-mobile-menu" ref={mobileMenuRef}>
+            <div className="mobile-nav-items">
+              {navItems.map(({ to, icon: Icon, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    `navbar-link ${isActive ? 'active' : ''}`
+                  }
+                  onClick={handleMobileNavClick}
+                >
+                  <Icon className="navbar-link-icon" />
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+            
+            <div className="mobile-user-section">
+              <div className="mobile-user-info">
+                <div className="user-avatar">
+                  <User size={20} />
+                </div>
+                <div>
+                  <div className="user-name">{user?.name || 'User'}</div>
+                  <div className="user-email">{user?.email}</div>
+                </div>
+              </div>
+              <button 
+                className="mobile-profile-btn"
+                onClick={handleProfileClick}
+              >
+                <User size={16} />
+                Profile
+              </button>
+              <button 
+                className="mobile-logout-btn"
+                onClick={handleLogout}
+              >
+                <LogOut size={16} />
+                Sign out
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

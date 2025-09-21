@@ -285,7 +285,7 @@ const Register = () => {
                   className="input-action"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>
               </div>
             </div>
@@ -311,33 +311,20 @@ const Register = () => {
                   className="input-action"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showConfirmPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>
               </div>
             </div>
 
-            <div className="form-terms">
-              <input
-                id="terms"
-                type="checkbox"
-                required
-                className="form-checkbox"
-              />
-              <label htmlFor="terms" className="form-checkbox-label">
-                I agree to the{' '}
-                <Link to="/terms" className="form-link">Terms of Service</Link>
-                {' '}and{' '}
-                <Link to="/privacy" className="form-link">Privacy Policy</Link>
-              </label>
-            </div>
-
-              <button
-                type="submit"
-                className="auth-button"
-                disabled={loading}
-              >
-                {loading ? 'Creating account...' : 'Create account'}
-              </button>
+              <div style={{ marginTop: '1.5rem' }}>
+                <button
+                  type="submit"
+                  className="auth-button"
+                  disabled={loading}
+                >
+                  {loading ? 'Creating account...' : 'Create account'}
+                </button>
+              </div>
             </form>
           )}
 
@@ -364,11 +351,6 @@ const Register = () => {
               )}
             </p>
           </div>
-        </div>
-
-        {/* Demo Info */}
-        <div className="demo-info">
-          <p><strong>Demo Mode:</strong> Use any valid information to create an account</p>
         </div>
       </div>
     </div>
