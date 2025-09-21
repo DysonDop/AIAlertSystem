@@ -33,9 +33,9 @@ class GoogleMapsService {
   async loadGoogleMaps() {
     if (this.isLoaded) return this.google;
 
-    // Fetch configuration from local backend server (not AWS)
-    const localBackendUrl = 'http://localhost:3000';
-    const { apiKey, mapId, libraries, version } = await fetch(`${localBackendUrl}/api/maps/config`).then(res => res.json());
+    // Use environment variable for API base URL
+    const apiBaseUrl = import.meta.env.VITE_MAPS_API_BASE_URL || 'http://localhost:3000';
+    const { apiKey, mapId, libraries, version } = await fetch(`${apiBaseUrl}/api/maps/config`).then(res => res.json());
 
     const loader = new Loader({
       apiKey,
@@ -60,9 +60,9 @@ class GoogleMapsService {
   async initializeMap(container, options = {}) {
     await this.loadGoogleMaps();
     
-    // Fetch configuration including Map ID from local backend server
-    const localBackendUrl = 'http://localhost:3000';
-    const { apiKey, mapId, libraries, version } = await fetch(`${localBackendUrl}/api/maps/config`).then(res => res.json());
+    // Use environment variable for API base URL
+    const apiBaseUrl = import.meta.env.VITE_MAPS_API_BASE_URL || 'http://localhost:3000';
+    const { apiKey, mapId, libraries, version } = await fetch(`${apiBaseUrl}/api/maps/config`).then(res => res.json());
     
     const defaultOptions = {
       center: { lat: 0, lng: 0 },
