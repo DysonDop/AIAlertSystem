@@ -26,7 +26,7 @@ export const alertService = {
    */
   async getAlerts(filters) {
     const response = await api.get('/getalerts');
-    let alerts = response.data.data; // Extract the data array from the response
+    let alerts = response.data.alerts || []; // Extract the alerts array from the response with safety fallback
 
     // Apply client-side filtering if filters are provided
     if (filters) {
@@ -56,7 +56,7 @@ export const alertService = {
    */
   async getAlert(id) {
     const response = await api.get('/getalerts');
-    const alerts = response.data.data; // Extract the data array from the response
+    const alerts = response.data.alerts || []; // Extract the alerts array from the response with safety fallback
     const alert = alerts.find(alert => alert.id === id);
     
     if (!alert) {
@@ -111,7 +111,7 @@ export const alertService = {
    */
   async getActiveAlerts() {
     const response = await api.get('/getalerts');
-    const alerts = response.data.data; // Extract the data array from the response
+    const alerts = response.data.alerts || []; // Extract the alerts array from the response with safety fallback
     
     // Filter for active alerts (assuming status 'active' or similar)
     return alerts.filter(alert => 
@@ -130,7 +130,7 @@ export const alertService = {
    */
   async getNearbyAlerts(lat, lng, radius = 10) {
     const response = await api.get('/getalerts');
-    const alerts = response.data.data; // Extract the data array from the response
+    const alerts = response.data.alerts || []; // Extract the alerts array from the response with safety fallback
     
     // Simple client-side distance filtering
     // Note: This is a basic implementation. For production, consider using a proper geospatial library

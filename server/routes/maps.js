@@ -6,7 +6,7 @@ router.get('/config', (req, res) => {
   res.json({
     apiKey: process.env.GOOGLE_MAPS_API_KEY,
     mapId: process.env.GOOGLE_MAPS_ID || '526d8b272b9c6bc936f68256', // fallback to actual Map ID
-    libraries: ['places', 'visualization', 'geometry'],
+    libraries: ['places'],
     version: 'weekly',
   });
 });
