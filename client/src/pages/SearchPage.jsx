@@ -79,17 +79,15 @@ const SearchPage = () => {
     try {
       const stats = tweetService.getStats();
       const fileInfo = await tweetService.getFileInfo();
-      const rawData = tweetService.getRawData();
       
       console.log('Tweet Service Stats:', stats);
       console.log('S3 Files Info:', fileInfo);
-      console.log('Raw S3 Data Sample:', rawData ? Object.keys(rawData).slice(0, 20) : 'No raw data');
       
       const debugInfo = {
         connection: stats,
         files: fileInfo,
-        sampleData: rawData ? Object.keys(rawData).slice(0, 10) : null,
-        dataStructure: rawData ? typeof rawData : 'No data'
+        cachedTweets: stats.cachedTweets,
+        cacheValid: stats.cacheValid
       };
       
       alert(`Debug Info:\n${JSON.stringify(debugInfo, null, 2)}`);

@@ -13,9 +13,8 @@ function ManualAlertsComponent() {
   useEffect(() => {
     async function loadAlerts() {
       try {
-        const resp = await fetch("https://kj5uk03dk9.execute-api.us-east-1.amazonaws.com/alerts/manual");
-        const data = await resp.json();
-        setAlerts(data.alerts || []);
+        const alerts = await alertService.getAlerts({ source: ['manual'] });
+        setAlerts(alerts || []);
       } catch (error) {
         console.error('Failed to load manual alerts:', error);
       }

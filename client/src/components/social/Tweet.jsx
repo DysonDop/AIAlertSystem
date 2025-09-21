@@ -61,9 +61,12 @@ const Tweet = ({ tweet }) => {
       <div className="tweet-header">
         <div className="tweet-avatar">
           <img 
-            src={avatar || 'https://via.placeholder.com/40'} 
+            src={avatar || 'https://via.placeholder.com/40/6B7280/FFFFFF?text=👤'} 
             alt={`${username} avatar`}
             className="avatar-image"
+            onError={(e) => {
+              e.target.src = 'https://via.placeholder.com/40/6B7280/FFFFFF?text=👤';
+            }}
           />
         </div>
         
