@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { signIn, signUp, signOut, getCurrentUser, confirmSignUp, resendSignUpCode } from 'aws-amplify/auth';
 
+
 const AuthContext = createContext();
+
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -9,7 +11,7 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -21,25 +23,30 @@ export const AuthProvider = ({ children }) => {
       try {
         const currentUser = await getCurrentUser();
         if (currentUser) {
-          // Import fetchUserAttributes to get all user attributes
-          const { fetchUserAttributes } = await import('aws-amplify/auth');
-          const userAttributes = await fetchUserAttributes();
-          
-          setUser({
+          // Try to load saved profile from localStorage
+          const savedProfile = localStorage.getItem('userProfile');
+          let userProfile = {
             id: currentUser.userId,
             email: currentUser.signInDetails?.loginId || currentUser.username,
-            name: userAttributes?.name || currentUser.signInDetails?.loginId?.split('@')[0] || currentUser.username,
+            name: currentUser.signInDetails?.loginId?.split('@')[0] || currentUser.username,
             username: currentUser.username,
-            phone: userAttributes?.phone_number || '',
-            address: userAttributes?.address || '',
-            bio: userAttributes?.['custom:bio'] || '',
-            joinedDate: new Date().toISOString().split('T')[0],
-            attributes: userAttributes || {}
-          });
+            attributes: currentUser.attributes || {}
+          };
+          
+          // Merge with saved profile if available
+          if (savedProfile) {
+            try {
+              const parsedProfile = JSON.parse(savedProfile);
+              userProfile = { ...userProfile, ...parsedProfile };
+            } catch (e) {
+              console.warn('Failed to parse saved profile:', e);
+            }
+          }
+          
+          setUser(userProfile);
         }
       } catch (error) {
         console.log('No authenticated user found');
-        // User is not signed in, which is fine
         setUser(null);
       } finally {
         setLoading(false);
@@ -59,19 +66,12 @@ export const AuthProvider = ({ children }) => {
       if (isSignedIn) {
         // Get user details after successful sign in
         const currentUser = await getCurrentUser();
-        const { fetchUserAttributes } = await import('aws-amplify/auth');
-        const userAttributes = await fetchUserAttributes();
-        
         const userData = {
           id: currentUser.userId,
           email: currentUser.signInDetails?.loginId || email,
-          name: userAttributes?.name || currentUser.signInDetails?.loginId?.split('@')[0] || currentUser.username,
+          name: currentUser.signInDetails?.loginId?.split('@')[0] || currentUser.username,
           username: currentUser.username,
-          phone: userAttributes?.phone_number || '',
-          address: userAttributes?.address || '',
-          bio: userAttributes?.['custom:bio'] || '',
-          joinedDate: new Date().toISOString().split('T')[0],
-          attributes: userAttributes || {}
+          attributes: currentUser.attributes || {}
         };
         
         setUser(userData);
@@ -171,53 +171,66 @@ export const AuthProvider = ({ children }) => {
 
   const updateProfile = async (profileData) => {
     try {
-      // Validate phone number format if provided
-      if (profileData.phone && profileData.phone.trim()) {
-        const phoneRegex = /^\+[1-9]\d{1,14}$/;
-        if (!phoneRegex.test(profileData.phone.trim())) {
-          throw new Error('Phone number must include country code and be in international format (e.g., +1234567890)');
+      let cognitoSuccess = true;
+      let cognitoError = null;
+      
+      try {
+        // Update user attributes in Cognito
+        const { updateUserAttributes, getCurrentUser } = await import('aws-amplify/auth');
+        
+        // Verify we have a current user
+        const currentUser = await getCurrentUser();
+        
+        // Prepare attributes for Cognito
+        const attributes = {};
+        if (profileData.name && profileData.name !== user?.name) {
+          attributes.name = profileData.name;
         }
-      }
-
-      // Update user attributes in Cognito
-      const { updateUserAttributes } = await import('aws-amplify/auth');
-      
-      // Prepare attributes for Cognito
-      const attributes = {};
-      
-      // Standard attributes
-      if (profileData.name && profileData.name.trim()) {
-        attributes.name = profileData.name.trim();
-      }
-      if (profileData.phone && profileData.phone.trim()) {
-        attributes.phone_number = profileData.phone.trim();
-      }
-      
-      // Standard address attribute
-      if (profileData.address && profileData.address.trim()) {
-        attributes.address = profileData.address.trim();
-      }
-      if (profileData.bio && profileData.bio.trim()) {
-        attributes['custom:bio'] = profileData.bio.trim();
-      }
-      
-      console.log('Updating user attributes:', attributes);
-      
-      if (Object.keys(attributes).length > 0) {
-        await updateUserAttributes({
-          userAttributes: attributes
-        });
+        if (profileData.phone && profileData.phone !== user?.phone) {
+          // Format phone number to E.164 format if needed
+          let formattedPhone = profileData.phone;
+          if (formattedPhone && !formattedPhone.startsWith('+')) {
+            // Add default country code if not present (assuming US +1)
+            if (formattedPhone.length === 10) {
+              formattedPhone = '+1' + formattedPhone;
+            } else if (formattedPhone.length === 11 && formattedPhone.startsWith('1')) {
+              formattedPhone = '+' + formattedPhone;
+            } else {
+              formattedPhone = '+' + formattedPhone;
+            }
+          }
+          attributes.phone_number = formattedPhone;
+        }
+        
+        if (Object.keys(attributes).length > 0) {
+          await updateUserAttributes({
+            userAttributes: attributes
+          });
+        }
+      } catch (cognitoErr) {
+        console.warn('Cognito update failed:', cognitoErr.message);
+        cognitoSuccess = false;
+        cognitoError = cognitoErr;
       }
       
-      // Update local user state
+      // Update local user state regardless of Cognito result
       const updatedUser = {
         ...user,
         ...profileData,
-        joinedDate: profileData.joinedDate || user.joinedDate || new Date().toISOString().split('T')[0]
+        joinedDate: profileData.joinedDate || user?.joinedDate || new Date().toISOString().split('T')[0]
       };
       
       setUser(updatedUser);
-      return { success: true, user: updatedUser };
+      
+      // Store in localStorage for persistence
+      localStorage.setItem('userProfile', JSON.stringify(updatedUser));
+      
+      return { 
+        success: true, 
+        user: updatedUser, 
+        cognitoSuccess,
+        cognitoError: cognitoError?.message || null
+      };
     } catch (error) {
       console.error('Profile update error:', error);
       throw new Error(error.message || 'Profile update failed');

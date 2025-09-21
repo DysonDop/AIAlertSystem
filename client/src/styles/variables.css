@@ -144,9 +144,22 @@ body[data-theme="dark"],
   
   --border-color: var(--border-color-dark);
   --shadow-color: var(--shadow-color-dark);
+  
+  /* Override button and error colors for dark mode */
+  --text-button-primary: #ffffff;
+  --text-button-secondary: #ffffff;
+  --text-button-clear: #ffffff;
+  --text-disabled: #9aa0a6;
+  --color-disabled: #4a5361;
+  --color-gray: #828992;
+  --color-gray-hover: #9aa0a6;
+  
+  /* Error Message Colors for dark mode */
+  --bg-error: rgba(238, 108, 77, 0.15);
+  --text-error: var(--palette-coral);
 }
 
-/* Common Colors for Both Themes */
+  /* Common Colors for Both Themes */
 :root {
   --color-success: #10b981;
   --color-success-hover: #059669;
@@ -160,7 +173,18 @@ body[data-theme="dark"],
   --color-error-hover: var(--color-primary-hover);
   --color-error-light: var(--color-primary-light);
   
-  /* Severity Colors */
+  /* Button Text Colors */
+  --text-button-primary: #ffffff;
+  --text-button-secondary: #ffffff;
+  --text-button-clear: #ffffff;
+  --text-disabled: #6b7280;
+  --color-disabled: #9ca3af;
+  --color-gray: #6b7280;
+  --color-gray-hover: #4b5563;
+  
+  /* Error Message Colors */
+  --bg-error: #fef2f2;
+  --text-error: #dc2626;  /* Severity Colors */
   --color-critical: var(--color-primary);
   --color-critical-bg: var(--color-primary-light);
   --color-high: var(--color-primary);

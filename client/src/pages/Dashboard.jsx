@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, MapPin, Clock, TrendingUp } from 'lucide-react';
+import { AlertTriangle, MapPin, Clock, TrendingUp, Twitter, CheckCircle, XCircle, BarChart3, Zap } from 'lucide-react';
 import AlertCard from '../components/alerts/AlertCard.jsx';
 import DisasterMap from '../components/maps/DisasterMap.jsx';
 import { alertService } from '../services/api.js';
@@ -7,90 +7,96 @@ import '../styles/pages/dashboard.css';
 
 const Dashboard = () => {
   const [alerts, setAlerts] = useState([]);
-  const [activeAlerts, setActiveAlerts] = useState([]);
+  const [socialMediaStats, setSocialMediaStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    total: 0,
-    active: 0,
-    critical: 0,
-    resolved: 0,
+    totalPosts: 0,
+    verifiedPosts: 0,
+    validatedAlerts: 0,
+    responseTime: 0,
+    accuracyRate: 0,
+    activeMonitoring: 0,
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [allAlerts, activeAlertsData] = await Promise.all([
-          alertService.getAlerts(),
-          alertService.getActiveAlerts(),
-        ]);
+        const activeAlertsData = await alertService.getActiveAlerts();
         
-        setAlerts(allAlerts);
-        setActiveAlerts(activeAlertsData);
-        
-        // Calculate stats
-        const total = allAlerts.length;
-        const active = activeAlertsData.length;
-        const critical = allAlerts.filter(alert => alert.severity === 'critical').length;
-        const resolved = allAlerts.filter(alert => !alert.isActive).length;
-        
-        setStats({ total, active, critical, resolved });
-      } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
-        // Mock data for development
+        // Mock social media monitoring data for development
         const mockAlerts = [
           {
             id: '1',
-            type: 'earthquake',
+            type: 'flood',
             severity: 'high',
-            title: 'Magnitude 6.2 Earthquake',
-            description: 'Strong earthquake detected near downtown area. Buildings may be affected.',
+            title: 'Flash Flood Alert - Validated',
+            description: 'Confirmed flood warning based on 12 social media reports and meteorological data cross-reference.',
             location: {
-              lat: 37.7749,
-              lng: -122.4194,
-              address: 'San Francisco, CA',
-              radius: 25,
+              lat: 3.139,
+              lng: 101.6869,
+              address: 'Kuala Lumpur, MY',
+              radius: 15,
             },
             timestamp: new Date().toISOString(),
-            source: 'meteorological',
+            source: 'social_media_validated',
             isActive: true,
+            validationStatus: 'verified',
+            socialMediaSources: 12,
+            meteorologicalConfirmation: true,
             recommendations: [
-              'Stay away from windows and heavy objects',
-              'Find shelter under sturdy furniture',
-              'Evacuate damaged buildings immediately',
+              'Avoid low-lying areas immediately',
+              'Monitor official channels for updates',
+              'Prepare emergency evacuation if needed',
             ],
           },
           {
             id: '2',
-            type: 'flood',
-            severity: 'critical',
-            title: 'Flash Flood Warning',
-            description: 'Severe flooding expected in low-lying areas due to heavy rainfall.',
+            type: 'earthquake',
+            severity: 'medium',
+            title: 'Earthquake Alert - Under Review',
+            description: 'Seismic activity reports from social media being validated with seismological data.',
             location: {
-              lat: 37.7849,
-              lng: -122.4094,
-              address: 'Mission District, SF',
-              radius: 15,
+              lat: 3.1319,
+              lng: 101.6841,
+              address: 'Downtown KL, MY',
+              radius: 10,
             },
-            timestamp: new Date(Date.now() - 3600000).toISOString(),
-            source: 'twitter',
+            timestamp: new Date(Date.now() - 900000).toISOString(),
+            source: 'social_media_pending',
             isActive: true,
+            validationStatus: 'pending',
+            socialMediaSources: 8,
+            meteorologicalConfirmation: false,
             recommendations: [
-              'Move to higher ground immediately',
-              'Avoid driving through flooded roads',
-              'Stay indoors until conditions improve',
+              'Monitor for official seismic confirmations',
+              'Stay alert for building damage reports',
+              'Prepare for potential aftershocks',
             ],
           },
         ];
         
         setAlerts(mockAlerts);
-        setActiveAlerts(mockAlerts);
-        setStats({
-          total: mockAlerts.length,
-          active: mockAlerts.length,
-          critical: 1,
-          resolved: 0,
+        
+        // Mock social media monitoring statistics
+        const mockStats = {
+          totalPosts: 2847,
+          verifiedPosts: 1923,
+          validatedAlerts: 34,
+          responseTime: 4.2, // minutes
+          accuracyRate: 87.5, // percentage
+          activeMonitoring: 6, // active sources
+        };
+        setStats(mockStats);
+
+        // Mock social media platform stats
+        setSocialMediaStats({
+          twitter: { posts: 1580, verified: 1245, accuracy: 89 },
+          facebook: { posts: 892, verified: 567, accuracy: 84 },
+          instagram: { posts: 375, verified: 111, accuracy: 92 },
         });
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
       } finally {
         setLoading(false);
       }
@@ -99,7 +105,7 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  const StatCard = ({ icon: Icon, label, value, color }) => (
+  const StatCard = ({ icon: Icon, label, value, color, suffix = '' }) => (
     <div className="stat-card">
       <div className="stat-card-content">
         <div className={`stat-card-icon ${color}`}>
@@ -107,8 +113,37 @@ const Dashboard = () => {
         </div>
         <div className="stat-card-text">
           <p className="stat-card-label">{label}</p>
-          <p className="stat-card-value">{value}</p>
+          <p className="stat-card-value">{value}{suffix}</p>
         </div>
+      </div>
+    </div>
+  );
+
+  const SocialMediaCard = ({ platform, data, icon: Icon }) => (
+    <div className="social-media-card">
+      <div className="social-media-header">
+        <Icon size={20} />
+        <h4>{platform}</h4>
+      </div>
+      <div className="social-media-stats">
+        <div className="social-stat">
+          <span className="stat-label">Posts</span>
+          <span className="stat-value">{data.posts}</span>
+        </div>
+        <div className="social-stat">
+          <span className="stat-label">Verified</span>
+          <span className="stat-value">{data.verified}</span>
+        </div>
+        <div className="social-stat">
+          <span className="stat-label">Accuracy</span>
+          <span className="stat-value">{data.accuracy}%</span>
+        </div>
+      </div>
+      <div className="social-progress">
+        <div 
+          className="social-progress-bar" 
+          style={{ width: `${data.accuracy}%` }}
+        ></div>
       </div>
     </div>
   );
@@ -118,7 +153,7 @@ const Dashboard = () => {
       <div className="loading-container">
         <div className="loading-content">
           <div className="loading-spinner"></div>
-          <p className="loading-text">Loading dashboard...</p>
+          <p className="loading-text">Loading AI monitoring dashboard...</p>
         </div>
       </div>
     );
@@ -129,37 +164,52 @@ const Dashboard = () => {
       <div className="dashboard-container">
         {/* Header */}
         <div className="dashboard-header">
-          <h1 className="dashboard-title">Disaster Alert Dashboard</h1>
+          <h1 className="dashboard-title">🤖 AI Disaster Alert Dashboard</h1>
           <p className="dashboard-subtitle">
-            Real-time monitoring of natural disasters and emergency alerts
+            Real-time social media monitoring with AI-driven disaster validation
           </p>
         </div>
 
         {/* Stats Grid */}
         <div className="stats-grid">
           <StatCard
-            icon={AlertTriangle}
-            label="Total Alerts"
-            value={stats.total}
+            icon={Twitter}
+            label="Social Media Posts"
+            value={stats.totalPosts.toLocaleString()}
             color="blue"
           />
           <StatCard
-            icon={TrendingUp}
-            label="Active Alerts"
-            value={stats.active}
+            icon={CheckCircle}
+            label="Verified Posts"
+            value={stats.verifiedPosts.toLocaleString()}
             color="green"
           />
           <StatCard
             icon={AlertTriangle}
-            label="Critical Alerts"
-            value={stats.critical}
+            label="Validated Alerts"
+            value={stats.validatedAlerts}
             color="red"
           />
           <StatCard
-            icon={Clock}
-            label="Resolved Today"
-            value={stats.resolved}
-            color="gray"
+            icon={Zap}
+            label="Response Time"
+            value={stats.responseTime}
+            color="orange"
+            suffix=" min"
+          />
+          <StatCard
+            icon={TrendingUp}
+            label="Accuracy Rate"
+            value={stats.accuracyRate}
+            color="purple"
+            suffix="%"
+          />
+          <StatCard
+            icon={BarChart3}
+            label="Active Monitoring"
+            value={stats.activeMonitoring}
+            color="indigo"
+            suffix=" sources"
           />
         </div>
 
@@ -168,64 +218,116 @@ const Dashboard = () => {
           {/* Map Section */}
           <div className="content-card">
             <div className="content-card-header">
-              <h2 className="content-card-title">Live Alert Map</h2>
+              <h2 className="content-card-title">🌍 Live Validation Map</h2>
               <div className="alert-count">
                 <MapPin />
-                <span>{activeAlerts.length} active incidents</span>
+                <span>{alerts.length} validated incidents</span>
               </div>
             </div>
             <DisasterMap
-              alerts={activeAlerts}
+              alerts={alerts}
               height="400px"
               showRadius={true}
               onAlertClick={(alert) => console.log('Alert clicked:', alert)}
             />
           </div>
 
-          {/* Recent Alerts */}
+          {/* Recent Validated Alerts */}
           <div className="content-card">
             <div className="content-card-header">
-              <h2 className="content-card-title">Recent Alerts</h2>
+              <h2 className="content-card-title">🔍 Recently Validated Alerts</h2>
               <button className="view-all-btn">
                 View All
               </button>
             </div>
             <div className="alerts-list">
               {alerts.slice(0, 5).map((alert) => (
-                <AlertCard
-                  key={alert.id}
-                  alert={alert}
-                  onClick={(alert) => console.log('Alert clicked:', alert)}
-                />
+                <div key={alert.id} className="validated-alert-card">
+                  <div className="alert-header">
+                    <div className="alert-title-section">
+                      <h3>{alert.title}</h3>
+                      <div className={`validation-status ${alert.validationStatus}`}>
+                        {alert.validationStatus === 'verified' && <CheckCircle size={16} />}
+                        {alert.validationStatus === 'pending' && <Clock size={16} />}
+                        {alert.validationStatus}
+                      </div>
+                    </div>
+                    <div className="alert-meta">
+                      <span className="timestamp">{new Date(alert.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                  </div>
+                  <p className="alert-description">{alert.description}</p>
+                  <div className="validation-details">
+                    <div className="validation-source">
+                      <Twitter size={14} />
+                      <span>{alert.socialMediaSources} social posts</span>
+                    </div>
+                    <div className="meteorological-status">
+                      {alert.meteorologicalConfirmation ? (
+                        <>
+                          <CheckCircle size={14} className="text-green-500" />
+                          <span>Meteorological data confirmed</span>
+                        </>
+                      ) : (
+                        <>
+                          <XCircle size={14} className="text-orange-500" />
+                          <span>Awaiting meteorological confirmation</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
             {alerts.length === 0 && (
               <div className="no-alerts">
                 <AlertTriangle />
-                <p>No alerts at this time</p>
+                <p>No validated alerts at this time</p>
               </div>
             )}
           </div>
         </div>
 
+        {/* Social Media Monitoring Stats */}
+        <div className="content-card">
+          <h2 className="content-card-title">📱 Social Media Platform Analytics</h2>
+          <div className="social-media-grid">
+            <SocialMediaCard
+              platform="Twitter"
+              data={socialMediaStats.twitter}
+              icon={Twitter}
+            />
+            <SocialMediaCard
+              platform="Facebook"
+              data={socialMediaStats.facebook}
+              icon={() => <span className="facebook-icon">f</span>}
+            />
+            <SocialMediaCard
+              platform="Instagram"
+              data={socialMediaStats.instagram}
+              icon={() => <span className="instagram-icon">📷</span>}
+            />
+          </div>
+        </div>
+
         {/* Quick Actions */}
         <div className="content-card quick-actions">
-          <h2 className="content-card-title">Quick Actions</h2>
+          <h2 className="content-card-title">⚡ Quick Actions</h2>
           <div className="quick-actions-grid">
             <button className="quick-action-btn">
-              <MapPin className="quick-action-icon blue" />
-              <h3 className="quick-action-title">View Full Map</h3>
-              <p className="quick-action-desc">Explore detailed incident map</p>
+              <Twitter className="quick-action-icon blue" />
+              <h3 className="quick-action-title">Social Monitor</h3>
+              <p className="quick-action-desc">View live social media feeds</p>
             </button>
             <button className="quick-action-btn">
-              <AlertTriangle className="quick-action-icon orange" />
-              <h3 className="quick-action-title">Report Incident</h3>
-              <p className="quick-action-desc">Submit new alert or incident</p>
+              <BarChart3 className="quick-action-icon green" />
+              <h3 className="quick-action-title">Validation Analytics</h3>
+              <p className="quick-action-desc">Detailed accuracy metrics</p>
             </button>
             <button className="quick-action-btn">
-              <TrendingUp className="quick-action-icon green" />
-              <h3 className="quick-action-title">Analytics</h3>
-              <p className="quick-action-desc">View trends and statistics</p>
+              <MapPin className="quick-action-icon orange" />
+              <h3 className="quick-action-title">Alert Map</h3>
+              <p className="quick-action-desc">Full interactive map view</p>
             </button>
           </div>
         </div>

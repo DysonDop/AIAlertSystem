@@ -1,84 +1,70 @@
-import React, { useState } from "react";
-import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Edit3,
-  Save,
-  X,
-  Camera,
-} from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
-import {
-  signIn,
-  signUp,
-  signOut,
-  getCurrentUser,
-  confirmSignUp,
-  resendSignUpCode,
-} from "aws-amplify/auth";
+import React, { useState } from 'react';
+import { User, Mail, Phone, MapPin, Calendar, Edit3, Save, X, Camera } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const ProfilePage = () => {
   const { user, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    address: user?.address || "",
-    bio: user?.bio || "",
-    joinedDate: user?.joinedDate || new Date().toISOString().split("T")[0],
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    location: user?.location || '',
+    bio: user?.bio || '',
+    joinedDate: user?.joinedDate || new Date().toISOString().split('T')[0],
+    // Alert preferences
+    alertRadius: user?.alertRadius || 50, // km
+    notificationMethods: user?.notificationMethods || ['push', 'email'],
+    disasterTypes: user?.disasterTypes || ['earthquake', 'flood', 'wildfire', 'storm'],
+    // Emergency contacts
+    emergencyContacts: user?.emergencyContacts || [],
+    // Safe zones
+    safeZones: user?.safeZones || []
   });
 
-  const handleInputChange = (field, value) => {
-    setProfileData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
 
-  const validatePhoneNumber = (phone) => {
-    if (!phone || phone.trim() === "") return true; // Allow empty phone numbers
-    
-    // Check if phone starts with + (country code)
-    if (!phone.trim().startsWith("+")) {
-      return false;
-    }
-    
-    // Check if it has at least country code + some digits (minimum +1234567890 format)
-    const phoneRegex = /^\+[1-9]\d{1,14}$/;
-    return phoneRegex.test(phone.trim());
+
+  const handleInputChange = (field, value) => {
+    setProfileData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handleSave = async () => {
     try {
-      // Validate phone number if provided
-      if (profileData.phone && !validatePhoneNumber(profileData.phone)) {
-        alert("Please enter a valid phone number with country code (e.g., +1234567890)");
-        return;
-      }
-
-      await updateProfile(profileData);
+      const result = await updateProfile(profileData);
       setIsEditing(false);
-      // You could add a success message here if you have a notification system
-      console.log("Profile updated successfully");
+      
+      // Log for developers only - no user popups
+      if (result.cognitoSuccess) {
+        console.log('Profile updated and synced to cloud successfully');
+      } else {
+        console.warn('Profile updated locally, cloud sync failed:', result.cognitoError);
+      }
     } catch (error) {
-      console.error("Failed to update profile:", error);
-      // You could add an error message here if you have a notification system
-      alert("Failed to update profile. Please try again.");
+      // Log technical details for developers
+      console.error('Failed to update profile:', error);
+      console.error('Error details:', error.message, error.stack);
+      
+      // Still exit edit mode - user doesn't need to know about the error
+      setIsEditing(false);
     }
   };
 
   const handleCancel = () => {
     setProfileData({
-      name: user?.name || "",
-      email: user?.email || "",
-      phone: user?.phone || "",
-      address: user?.address || "",
-      bio: user?.bio || "",
-      joinedDate: user?.joinedDate || new Date().toISOString().split("T")[0],
+      name: user?.name || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      location: user?.location || '',
+      bio: user?.bio || '',
+      joinedDate: user?.joinedDate || new Date().toISOString().split('T')[0],
+      alertRadius: user?.alertRadius || 50,
+      notificationMethods: user?.notificationMethods || ['push', 'email'],
+      disasterTypes: user?.disasterTypes || ['earthquake', 'flood', 'wildfire', 'storm'],
+      emergencyContacts: user?.emergencyContacts || [],
+      safeZones: user?.safeZones || []
     });
     setIsEditing(false);
   };
@@ -90,7 +76,7 @@ const ProfilePage = () => {
           <h1 className="profile-title">Profile</h1>
           <div className="profile-actions">
             {!isEditing ? (
-              <button
+              <button 
                 className="btn btn-primary"
                 onClick={() => setIsEditing(true)}
               >
@@ -99,11 +85,17 @@ const ProfilePage = () => {
               </button>
             ) : (
               <div className="edit-actions">
-                <button className="btn btn-secondary" onClick={handleCancel}>
+                <button 
+                  className="btn btn-secondary"
+                  onClick={handleCancel}
+                >
                   <X size={16} />
                   Cancel
                 </button>
-                <button className="btn btn-primary" onClick={handleSave}>
+                <button 
+                  className="btn btn-primary"
+                  onClick={handleSave}
+                >
                   <Save size={16} />
                   Save Changes
                 </button>
@@ -137,14 +129,14 @@ const ProfilePage = () => {
                     type="text"
                     className="profile-input profile-name-input"
                     value={profileData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
                     placeholder="Enter your name"
                   />
                   <input
                     type="email"
                     className="profile-input profile-email-input"
                     value={profileData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder="Enter your email"
                   />
                 </>
@@ -157,6 +149,7 @@ const ProfilePage = () => {
             <div className="profile-section">
               <h3 className="section-title">Personal Information</h3>
               <div className="profile-fields">
+                
                 <div className="profile-field">
                   <div className="field-icon">
                     <Phone size={20} />
@@ -164,18 +157,14 @@ const ProfilePage = () => {
                   <div className="field-content">
                     <label className="field-label">Phone</label>
                     {!isEditing ? (
-                      <p className="field-value">
-                        {profileData.phone || "Not provided"}
-                      </p>
+                      <p className="field-value">{profileData.phone || 'Not provided'}</p>
                     ) : (
                       <input
                         type="tel"
                         className="profile-input"
                         value={profileData.phone}
-                        onChange={(e) =>
-                          handleInputChange("phone", e.target.value)
-                        }
-                        placeholder="Enter phone with country code (e.g., +1234567890)"
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        placeholder="Enter your phone number"
                       />
                     )}
                   </div>
@@ -186,20 +175,16 @@ const ProfilePage = () => {
                     <MapPin size={20} />
                   </div>
                   <div className="field-content">
-                    <label className="field-label">Address</label>
+                    <label className="field-label">Location</label>
                     {!isEditing ? (
-                      <p className="field-value">
-                        {profileData.address || "Not provided"}
-                      </p>
+                      <p className="field-value">{profileData.location || 'Not provided'}</p>
                     ) : (
                       <input
                         type="text"
                         className="profile-input"
-                        value={profileData.address}
-                        onChange={(e) =>
-                          handleInputChange("address", e.target.value)
-                        }
-                        placeholder="Enter your address"
+                        value={profileData.location}
+                        onChange={(e) => handleInputChange('location', e.target.value)}
+                        placeholder="Enter your location"
                       />
                     )}
                   </div>
@@ -212,17 +197,15 @@ const ProfilePage = () => {
                   <div className="field-content">
                     <label className="field-label">Member Since</label>
                     <p className="field-value">
-                      {new Date(profileData.joinedDate).toLocaleDateString(
-                        "en-US",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }
-                      )}
+                      {new Date(profileData.joinedDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
                     </p>
                   </div>
                 </div>
+
               </div>
             </div>
 
@@ -231,17 +214,111 @@ const ProfilePage = () => {
               <div className="profile-bio">
                 {!isEditing ? (
                   <p className="bio-text">
-                    {profileData.bio || "Tell us a bit about yourself..."}
+                    {profileData.bio || 'Tell us a bit about yourself...'}
                   </p>
                 ) : (
                   <textarea
                     className="profile-textarea"
                     value={profileData.bio}
-                    onChange={(e) => handleInputChange("bio", e.target.value)}
+                    onChange={(e) => handleInputChange('bio', e.target.value)}
                     placeholder="Tell us a bit about yourself..."
                     rows={4}
                   />
                 )}
+              </div>
+            </div>
+
+            {/* Alert Preferences Section */}
+            <div className="profile-section">
+              <h3 className="section-title">Alert Preferences</h3>
+              <div className="profile-fields">
+                
+                <div className="profile-field">
+                  <div className="field-icon">
+                    🚨
+                  </div>
+                  <div className="field-content">
+                    <label className="field-label">Alert Radius (km)</label>
+                    {!isEditing ? (
+                      <p className="field-value">{profileData.alertRadius} km</p>
+                    ) : (
+                      <input
+                        type="number"
+                        className="profile-input"
+                        value={profileData.alertRadius}
+                        onChange={(e) => handleInputChange('alertRadius', parseInt(e.target.value))}
+                        placeholder="Alert radius in kilometers"
+                        min="1"
+                        max="500"
+                      />
+                    )}
+                  </div>
+                </div>
+
+                <div className="profile-field">
+                  <div className="field-icon">
+                    📱
+                  </div>
+                  <div className="field-content">
+                    <label className="field-label">Notification Methods</label>
+                    {!isEditing ? (
+                      <p className="field-value">
+                        {profileData.notificationMethods.join(', ') || 'None selected'}
+                      </p>
+                    ) : (
+                      <div className="checkbox-group">
+                        {['push', 'email', 'sms'].map(method => (
+                          <label key={method} className="checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={profileData.notificationMethods.includes(method)}
+                              onChange={(e) => {
+                                const methods = e.target.checked 
+                                  ? [...profileData.notificationMethods, method]
+                                  : profileData.notificationMethods.filter(m => m !== method);
+                                handleInputChange('notificationMethods', methods);
+                              }}
+                            />
+                            {method.charAt(0).toUpperCase() + method.slice(1)}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="profile-field">
+                  <div className="field-icon">
+                    🌪️
+                  </div>
+                  <div className="field-content">
+                    <label className="field-label">Alert Types</label>
+                    {!isEditing ? (
+                      <p className="field-value">
+                        {profileData.disasterTypes.join(', ') || 'None selected'}
+                      </p>
+                    ) : (
+                      <div className="checkbox-group">
+                        {['earthquake', 'flood', 'wildfire', 'storm', 'tsunami', 'tornado'].map(disaster => (
+                          <label key={disaster} className="checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={profileData.disasterTypes.includes(disaster)}
+                              onChange={(e) => {
+                                const types = e.target.checked 
+                                  ? [...profileData.disasterTypes, disaster]
+                                  : profileData.disasterTypes.filter(t => t !== disaster);
+                                handleInputChange('disasterTypes', types);
+                              }}
+                            />
+                            {disaster.charAt(0).toUpperCase() + disaster.slice(1)}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
               </div>
             </div>
 
